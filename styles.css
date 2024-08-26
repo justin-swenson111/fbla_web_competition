@@ -3,8 +3,39 @@
     display: flex;
     font-size: 28px;
     text-align: center;
+    height: 50px;
+}
+
+.logo {
+    height: 30px;
 }
 
 .home {
     color: white;
+    font-size: 15px;
+}
+
+.about {
+    color: white;
+    font-size: 15px;
+}
+
+.hsstudents {
+    color: white;
+    font-size: 15px;
+}
+
+.adultstudents {
+    color: white;
+    font-size: 15px;
+}
+
+.partners {
+    color: white;
+    font-size: 15px;
+}
+
+.counselors {
+    color: white;
+    font-size: 15px;
 }
