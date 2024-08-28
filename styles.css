@@ -39,3 +39,23 @@
     color: white;
     font-size: 15px;
 }
+.footer{
+    background-color: #0C2340;
+    font-size: 15px;
+    text-align: left;
+
+}
+.button {
+    font: bold 20px Arial;
+    text-decoration: none;
+    background-color: #0C2340;
+    color: white;
+    padding: 2px 6px 2px 6px;
+    border-top: 3px solid #CCCCCC;
+    border-right: 3px solid #333333;
+    border-bottom: 3px solid #333333;
+    border-left: 3px solid #CCCCCC;
+  }
+.footerColor{
+    color: white;
+}
