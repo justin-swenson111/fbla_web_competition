@@ -45,7 +45,7 @@
     text-align: left;
 
 }
-.button {
+.footerButton {
     font: bold 20px Arial;
     text-decoration: none;
     background-color: #0C2340;
@@ -56,6 +56,67 @@
     border-bottom: 3px solid #333333;
     border-left: 3px solid #CCCCCC;
   }
+  .footerSpecButton {
+    text-align: right;
+    font: bold 20px Arial;
+    text-decoration: none;
+    background-color: #0C2340;
+    color: white;
+    padding: 10px 4px 0px 4px;
+    border-top: 3px solid #CCCCCC;
+    border-right: 3px solid #333333;
+    border-bottom: 3px solid #333333;
+    border-left: 3px solid #CCCCCC;
+    float: right;
+  }
+  .footerYoutubeButton {
+    text-align: right;
+    font: bold 20px Arial;
+    text-decoration: none;
+    background-color: #0C2340;
+    color: white;
+    padding: 10px 4px 0px 4px;
+    border-top: 3px solid #CCCCCC;
+    border-right: 3px solid #333333;
+    border-bottom: 3px solid #333333;
+    border-left: 3px solid #CCCCCC;
+    float: right;
+  }
 .footerColor{
     color: white;
+}
+
+.image-slideshow{
+    background-color: #e68133;
+}
+
+.image-slideshow-actions-below{
+    background-color: #0C2340;
+    color: white;
+}
+
+.justin-dot {
+    height: 25px;
+    width: 25px;
+    background-color: #e68133;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .bruce-dot {
+    height: 25px;
+    width: 25px;
+    background-color: #e68133;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .maanvik-dot {
+    height: 25px;
+    width: 25px;
+    background-color: #e68133;
+    border-radius: 50%;
+    display: inline-block;
+  }
+.adminParagraphs{
+    width: 1000;
+    text-align: left;
 }
