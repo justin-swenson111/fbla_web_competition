@@ -1,22 +1,24 @@
 .aboutUsParagraphs{
     width: 1000;
     text-align: left;
-    font-size: 15px;
+    font-size: 17px;
+    font-family: sans-serif;
 }
-.header{
-    font-size: 25px;
-    font-weight: bolder;
+.aboutUsImage{
+  float: left; 
+  margin-right: 20px; 
+  margin-bottom: 10px;
 }
 .subHeader{
     font-weight: bolder;
     font-size: 17px;;
 }
-.navbar{
-    background-color: #0C2340;
-    display: flex;
-    font-size: 28px;
-    text-align: center;
-    height: 50px;
+.navbar {
+  background-color: #0C2340;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  height: 100px;
 }
 .nav-links {
     display: flex;
@@ -58,3 +60,50 @@
   .nav-item:hover::after {
     transform: translateX(-50%) scaleX(1); 
   }
+  .footerColor{
+    color: white;
+}
+.footer{
+  background-color: #0C2340;
+  font-size: 15px;
+  text-align: left;
+
+}
+.footerButton {
+  font: bold 20px Arial;
+  text-decoration: none;
+  background-color: #0C2340;
+  color: white;
+  padding: 2px 6px 2px 6px;
+  border-top: 3px solid #CCCCCC;
+  border-right: 3px solid #333333;
+  border-bottom: 3px solid #333333;
+  border-left: 3px solid #CCCCCC;
+  margin-left: 20px;
+}
+.footerSpecButton {
+  text-align: right;
+  font: bold 20px Arial;
+  text-decoration: none;
+  background-color: #0C2340;
+  color: white;
+  padding: 10px 4px 0px 4px;
+  border-top: 3px solid #CCCCCC;
+  border-right: 3px solid #333333;
+  border-bottom: 3px solid #333333;
+  border-left: 3px solid #CCCCCC;
+  float: right;
+}
+.footerYoutubeButton {
+  text-align: right;
+  font: bold 20px Arial;
+  text-decoration: none;
+  background-color: #0C2340;
+  color: white;
+  padding: 10px 4px 0px 4px;
+  border-top: 3px solid #CCCCCC;
+  border-right: 3px solid #333333;
+  border-bottom: 3px solid #333333;
+  border-left: 3px solid #CCCCCC;
+  float: right;
+}
