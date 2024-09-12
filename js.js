@@ -35,13 +35,19 @@ let timer = 6
           setTimeout(start, 1500)
             }
     function imgCycle(){
+        let newText= "test text 2"
         var imgpath = ["https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Domain/4/Powesports-new-1.png", "https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Domain/4/Vet-Sci-new.png"]
         document.createElement('img').src = "https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Domain/4/Powesports-new-1.png"
-        document.getElementById('text')=="This is a test"
+        document.getElementById("text").innerHTML=newText
+
         setTimeout(imgCycle, 1500)
         if (timer <= 6){
             timer = timer - 1
         }
         if (5 == timer){
         }
+    }
+    function testfunction(){
+        document.getElementById("text").innerHTML=newText
+
     }
