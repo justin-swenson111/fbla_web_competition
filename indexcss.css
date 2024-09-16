@@ -8,6 +8,10 @@ body{
   align-items: center;
   padding: 10px 20px;
   height: 100px;
+
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
 }
 
 .logo {
@@ -19,6 +23,8 @@ body{
   display: flex;
   flex-grow: 1;
   justify-content: space-around;
+
+
 }
 
 .nav-item {
