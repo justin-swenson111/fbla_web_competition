@@ -6,7 +6,7 @@ function imgCycle(){
     // document.getElementById("text").innerHTML=newText
     // document.getElementById("img1").src=imgpath[0]
 
-    setTimeout(imgCycle, 1500)
+    setTimeout(imgCycle, 3000)
     if (timer <= 5){
         timer = timer - 1
     }
