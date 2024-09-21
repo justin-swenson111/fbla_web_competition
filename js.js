@@ -1,4 +1,6 @@
-
+function imgCycleCall(){
+    setInterval(imgCycle, 3000)
+}
 let timer = 5
 function imgCycle(){
     // let newText= "test text 2"
@@ -6,7 +8,6 @@ function imgCycle(){
     // document.getElementById("text").innerHTML=newText
     // document.getElementById("img1").src=imgpath[0]
 
-    setTimeout(imgCycle, 3000)
     if (timer <= 5){
         timer = timer - 1
     }
