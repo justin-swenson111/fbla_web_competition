@@ -11,8 +11,8 @@
 <body>
     <nav class = "navbar">
         <img class = "logo" src="https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Template/GlobalAssets/images///logos/WM_logo_3.png">
-        <div class="nav-links">
-            <a href="index.html" class="home">Home</a>
+        <div class="nav-links" >
+            <a href="index.html" class="home" onload="imgCycle()">Home</a>
             <a href="aboutUs.html" class="about">About Us</a>
             <a href="hsstudents.html" class="hsstudents">High School Students</a>
             <a href="adultStudents.html" class="adultstudents">Adult Students</a>
@@ -22,13 +22,14 @@
     </nav>
     <main>
         <script type = "text/javascript" src="js.js"></script>
-        <button onclick="imgCycle()">Click me</button>
-        <img id="img1">
+        <br>
+        <img id="img1" src="https://www.awsfzoo.com/media/capy1.png">
         <p id="text">test</p>
+
 
     </main>
     <script>
-
+    setTimeout(imgCycle, 1500)
     </script>
 </body>
 </html>
