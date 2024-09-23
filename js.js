@@ -1,10 +1,12 @@
 function imgCycleCall(){
-    setInterval(imgCycle, 3000)
+    setInterval(imgCycle, 6000)
 }
 let timer = 4
 let visible=true
 let opacity=1
 let intCount=0
+let fadeCount=0
+
 
 function imgCycle(){
     // let newText= "test text 2"
@@ -17,64 +19,61 @@ function imgCycle(){
         timer = timer - 1
     }
     if (4 == timer){
-        document.getElementById("img1").style.opacity=1
+        fadein()
         document.getElementById("img1").src=imgpath[0]
         document.getElementById("testtext").innerHTML=setText[0]
-        setTimeout(function(){console.log("Wait")},1000)
-
-        opacity=1
-        setTimeout(fadetest,1000)
+        setTimeout(function(){console.log("Wait")},4000)
+        setTimeout(fadeout,3000)
         
 
     }
     if (3 == timer){
-        document.getElementById("img1").style.opacity=1
-
+        fadein()
         document.getElementById("img1").src=imgpath[1]
 
         document.getElementById("testtext").innerHTML=setText[0]
-        setTimeout(function(){console.log("Wait")},1000)
-        opacity=1
+        setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadetest,1000)
+        setTimeout(fadeout,3000)
 
 
     }
     if (2 == timer){
-        document.getElementById("img1").style.opacity=1
+        fadein()
+        
 
         document.getElementById("img1").src=imgpath[2]
 
         document.getElementById("testtext").innerHTML=setText[0]
-        setTimeout(function(){console.log("Wait")},1000)
-        opacity=1
+        setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadetest,1000)
+        setTimeout(fadeout,3000)
 
     
     }
     if (1 == timer){
-        document.getElementById("img1").style.opacity=1
+        fadein()
+
 
         document.getElementById("img1").src=imgpath[3]
 
         document.getElementById("testtext").innerHTML=setText[1]
-        setTimeout(function(){console.log("Wait")},1000)
-        opacity=1
+        setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadetest,1000)
+        setTimeout(fadeout,3000)
 
 
     }
     if (0 == timer){
-        document.getElementById("img1").style.opacity=1
+        fadein()
+
 
         document.getElementById("img1").src=imgpath[4]
         document.getElementById("testtext").innerHTML=setText[1]
-        setTimeout(function(){console.log("Wait")},1000)
+        setTimeout(function(){console.log("Wait")},4000)
         opacity=1
 
-        setTimeout(fadetest,1000)
+        setTimeout(fadeout,3000)
 
 
         timer=5
@@ -86,19 +85,38 @@ function imgCycle(){
     // }
     console.log(timer)
 }
-function fadetest(){
+function fadeout(){
+    intCount=0
 console.log(opacity)
 var img = document.getElementById("img1")
-    var i=setInterval(function(){
+    var me=setInterval(function(){
         intCount++
             opacity-=0.1
             img.style.opacity=opacity
             console.log(opacity)
-        if (intCount===10){
-            clearInterval(i)
+            console.log(intCount)
+
+        if (intCount>=10){
+            clearInterval(me)
         }
     },100)
-
+}
+function fadein(){
+    fadeCount=0
+    var img = document.getElementById("img1")
+    if (opacity!=1){
+        var me=setInterval(function(){
+            fadeCount++
+                opacity+=0.1
+                img.style.opacity=opacity
+                console.log(opacity)
+                console.log(fadeCount)
+    
+            if (fadeCount>=10){
+                clearInterval(me)
+            }
+        },100)
+    }
 
 }
 
