@@ -19,63 +19,79 @@ function imgCycle(){
         timer = timer - 1
     }
     if (4 == timer){
-        fadein()
+        fadeout()
+        setTimeout(fadein,1000)
+        setTimeout(function(){
+            document.getElementById("img1").src=imgpath[0]
+            
+        },1000)
+
         console.log("img1")
-        document.getElementById("img1").src=imgpath[0]
         document.getElementById("testtext").innerHTML=setText[0]
         setTimeout(function(){console.log("Wait")},4000)
-        setTimeout(fadeout,3000)
         
 
     }
     if (3 == timer){
-        fadein()
+        fadeout()
+        setTimeout(fadein,1000)
+        setTimeout(function(){
+            document.getElementById("img1").src=imgpath[1]
+            
+        },1000)
+
         console.log("img2")
 
-        document.getElementById("img1").src=imgpath[1]
 
         document.getElementById("testtext").innerHTML=setText[0]
         // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,2000)
 
 
     }
     if (2 == timer){
-        fadein()
-        
+        fadeout()
+        setTimeout(fadein,1000)
+        setTimeout(function(){
+            document.getElementById("img1").src=imgpath[2]
+            
+        },1000)
 
-        document.getElementById("img1").src=imgpath[2]
+
 
         document.getElementById("testtext").innerHTML=setText[0]
         // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,2000)
 
     
     }
     if (1 == timer){
-        fadein()
+        fadeout()
+        setTimeout(fadein,1000)
+        setTimeout(function(){
+            document.getElementById("img1").src=imgpath[3]
+            
+        },1000)
 
 
-        document.getElementById("img1").src=imgpath[3]
 
         document.getElementById("testtext").innerHTML=setText[1]
         // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,2000)
 
 
     }
     if (0 == timer){
-        fadein()
+        fadeout()
+        setTimeout(fadein,1000)
+        setTimeout(function(){
+            document.getElementById("img1").src=imgpath[4]
 
+        },1000)
 
-        document.getElementById("img1").src=imgpath[4]
         document.getElementById("testtext").innerHTML=setText[1]
         // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,2000)
 
 
         timer=5
