@@ -5,207 +5,178 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEC West</title>
     <link rel="shortcut icon" href="media/favicon.ico" type="image/x-icon">
-    <link rel = "stylesheet" type = "text/css" href="indexcss.css">
+    <link rel="stylesheet" type="text/css" href="indexcss.css">
 </head>
 <body>
     <nav class="navbar">
-        <img class="logo" src="https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Template/GlobalAssets/images///logos/WM_logo_3.png">
+        <img class="logo" src="./media/images/Arrow_2.png" alt="MEC West Logo">
         <div class="nav-links">
             <a href="index.html" class="nav-item">Home</a>
             <a href="aboutUs.html" class="nav-item">About Us</a>
-            <a href="hsstudents.html" class="nav-item">High School Students</a>
-            <a href="adultStudents.html" class="nav-item">Adult Students</a>
-            <a href="partners_employers.html" class="nav-item">Partners & Employers</a>
+            <a href="hsstudents.html" class="nav-item">High School Resources</a>
+            <a href="adultStudents.html" class="nav-item">Adult Resources</a>
+            <a href="partners_employers.html" class="nav-item">Job Openings</a>
         </div>
     </nav>    
-    <section class = "image-slideshow">
 
-    <center>
-      <table height="200">
-        <tr>
-            <td  width="500"><p id="text"></p>    </td>
-            <td  width="500"><p id="img1"></p>    </td>
-            
-            
+    <main>
+        <section class="image-slideshow">
+            <div class="slideshow-container">
+                <div class="slideshow-images">
+                    <div id="img1" class="slide"></div>
+                    <div id="img2" class="slide"></div>
+                    <div id="img3" class="slide"></div>
+                    <div id="img4" class="slide"></div>
+                </div>
+                <div class="overlay"></div>
+                <div class="content-wrapper">
+                    <div class="text-content">
+                        <h1 id="text"></h1>
+                    </div>
+                </div>
+            </div>
+        </section>        
 
-</tr>
-</table>
-</center>
-            <script>
-                
-                let timer = 6
-                function start(){
-               
-                if (timer <= 6){
-                    timer = timer - 1
-                }
-                if (5 == timer){
-                    document.getElementById("text").innerHTML = "<font size='7' color='white'><b> <i> <center> A FASTER WAY FORWARD <font size='4'> </br>WELCOME TO GENERATION ORANGE </center>"
-                    document.getElementById("img1").innerHTML = "<p><img src='https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Domain/4/Powesports-new-1.png' width='750' height='520'></p>"   
-                }
-                
-                if (4 == timer){
-                    document.getElementById("text").innerHTML = "<font size='7' color='white'><b> <i> <center> A FASTER WAY FORWARD <font size='4'> </br>WELCOME TO GENERATION ORANGE </center>"
-                    document.getElementById("img1").innerHTML = "<p><img src='https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Domain/4/Vet-Sci-new.png' width='750' height='520'></p>"   
-                }
-                if (3 == timer){
-                    document.getElementById("text").innerHTML = "<font size='8' color='white'><b> <i> <center> POWER YOUR ARROW <font size='4'> </br>WELCOME TO GENERATION ORANGE </center>"
-                    document.getElementById("img1").innerHTML = "<p><img src='https://resources.finalsite.net/images/f_auto,q_auto/v1701766761/westmecorg/nbo5ibzwruhfbzv5f9ga/Energyheader.png' width='750' height='520'></p>"   
-                }
-                if (2 == timer){
-                    document.getElementById("text").innerHTML = "<font size='7' color='white'><b> <i> <center> A FASTER WAY FORWARD <font size='4'> </br>WELCOME TO MEC-WEST </center>"
-                    document.getElementById("img1").innerHTML = "<p><img src='media/coding.png' width='750' height='519'></p>"   
-                }
+        <section class="image-slideshow-actions-below">
+            <div class="cta-container">
+                <div class="cta-text">Ready to see our orange impact in action?</div>
+                <div class="cta-buttons">
+                    <button>Recruiter Virtual Visit</button>
+                    <button>On Campus Tour</button>
+                    <button>Request a Recruiter</button>
+                </div>
+            </div>
+        </section>
+        
+        <br>
 
+        <section class="misc-actions">
+            <center>
+                <table>
+                    <tr class="misc-actions-buttons">
+                        <td><button class="misc-actions-button">Apply Now</button></td>
+                        <td><button class="misc-actions-button">High School Programs Quick Guide</button></td>
+                        <td><button class="misc-actions-button">High School Programs</button></td>
+                        <td><button class="misc-actions-button">Student & Parent Resources</button></td>
+                        <td><button class="misc-actions-button">Professional Development</button></td>
+                    </tr>
+                </table>
+            </center>
+        </section>
 
-                if (timer <= 0)
-                    timer = 6
-                
-          console.log(timer)
-          setTimeout(start, 1500)
+        <section class="employers">
+            <center>
+                <h2 style="color: #0C2340; font-size: 2.5em;"><i><b>A FASTER WAY FORWARD</b></i></h2>
+                <p style="color: #0C2340; font-size: 1.5em;">Companies that have hired our students...</p>
+                <table>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Adelante</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Lexus</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Rummel Construction</span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Ang Construction</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Lufthansa</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Sanderson Ford</span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Banner Health</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Mercedes Benz</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Schuff Steel</span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Freightliner AZ</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Ohana Salon</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Subaru</span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Honeywell</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Pacific Dental Services</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Sun Health</span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Humana</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Palo Verde</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Toyota</span></td>
+                    </tr>
+                    <tr>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">K2 Electric</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">Pepsi Co</span></td>
+                        <td><span style="color: #0C2340; font-size: 1.2em;">1st Pet Vet</span></td>
+                    </tr>
+                </table>
+            </center>
+        </section> 
+
+        <section class="students">
+            <span class="justin-dot">
+                <img src="media/justindot.png" alt="Justin Dot">
+            </span>
+            <span class="bruce-dot">
+                <p>Bruce</p>
+            </span>
+            <span class="maanvik-dot">
+                <p>Maanvik</p>
+            </span>
+        </section>
+
+        <div class="moments">
+            <div class="follow-orange-wave-banner">
+                <h2>FOLLOW THE ORANGE WAVE</h2>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let timer = 6;
+
+        function start() {
+            timer--;
+
+            const images = [
+                "./media/images/automotivechilds.png",
+                "./media/images/Vet-Sci-new.png",
+                "./media/images/Energyheader.png",
+                "./media/images/coding.png"
+            ];
+
+            switch (timer) {
+                case 5:
+                    document.getElementById("text").innerHTML = 
+                        "<h1 style='font-size: 3em;'><b><i>A FASTER WAY FORWARD</b></i></h1><h4>WELCOME TO GENERATION ORANGE</h4>";
+                    document.getElementById("img1").style.backgroundImage = `url('${images[0]}')`;
+                    document.getElementById("img1").style.opacity = 1; // Show first image
+                    break;
+                case 4:
+                    document.getElementById("img1").style.opacity = 0; // Hide first image
+                    document.getElementById("img2").style.backgroundImage = `url('${images[1]}')`;
+                    document.getElementById("img2").style.opacity = 1; // Show second image
+                    break;
+                case 3:
+                    document.getElementById("img2").style.opacity = 0; // Hide second image
+                    document.getElementById("img3").style.backgroundImage = `url('${images[2]}')`;
+                    document.getElementById("img3").style.opacity = 1; // Show third image
+                    break;
+                case 2:
+                    document.getElementById("img3").style.opacity = 0; // Hide third image
+                    document.getElementById("img4").style.backgroundImage = `url('${images[3]}')`;
+                    document.getElementById("img4").style.opacity = 1; // Show fourth image
+                    break;
+                case 1:
+                    document.getElementById("img4").style.opacity = 0; // Hide fourth image
+                    document.getElementById("img1").style.backgroundImage = `url('${images[0]}')`; // Reset to first image
+                    document.getElementById("img1").style.opacity = 1; // Show first image again
+                    break;
+                case 0:
+                    timer = 6; // Reset timer
+                    break;
             }
-            start();
-            </script> 
-        
-    
-    </section>
-    <section class="image-slideshow-actions-below">
-        <div class="cta-container">
-          <div class="cta-text">Ready to see our orange impact in action?</div>
-          <div class="cta-buttons">
-            <button>Recruiter Virtual Visit</button>
-            <button>On Campus Tour</button>
-            <button>Request a Recruiter</button>
-          </div>
-        </div>
-    </section>
-    
-    <br>
 
-    <section class= "misc-actions">
-        <center>
-        <table >
-            <tr class="misc-actions-buttons">
-                <td width="200"><center><button class="misc-actions-button">Apply Now</button> </center></td>
-                <td width="200"><center><button class="misc-actions-button">High School Programs Quick Guide</button> </center></td>
-                <td width="200"><center><button class="misc-actions-button">High School Programs</button> </center></td>
-                <td width="200"><center><button class="misc-actions-button">Student & Parent Resources</button> </center></td>
-                <td width="200"><center><button class="misc-actions-button">Professional Development</button> </center> </td>
-            </tr>
+            console.log(timer);
+            setTimeout(start, 1500);
+        }
 
-
-        </table>
-        </center>
-
-    </section>
-    <section class= "employers">
-        <center>
-        <table>
-            <tr>
-                <td colspan="3"><font size="9" color="#0C2340"><i><b>A FASTER WAY FORWARD</i></b></font></td>
-            </tr>
-            <tr>
-                <td colspan="3"><font size="5" color="#0C2340">Companies that have hired our students...</font></td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Adelante</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Lexus</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Rummel Construction</td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Ang Construction</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Lufthansa</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Sanderson Ford</td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Banner Health</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Mercedes Benz</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Schuff Steel</td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Freightliner AZ</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Ohana Salon</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Subaru</td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Honeywell</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Pacific Dental Services</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Sun Health</td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Humana</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Palo Verde</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Toyota</td>
-
-            </tr>
-            <tr>
-                <td width="300" height="30"><font color="#0C2340" size="4.5"> K2 Electric</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">Pepsi Co</td>
-                <td width="300" height="30"><font color="#0C2340" size="4.5">1st Pet Vet</td>
-
-            </tr>
-
-
-
-        </table>
-        </center>
-        
-    </section> 
-    <section class= "students">
-        <span class="justin-dot">
-            <img src="media/image-removebg-preview (1).png"
-        </span>
-        <span class="bruce-dot">
-            <p>Bruce</p>
-        </span>
-        <span class="maanvik-dot">
-            <p>Maanvik</p>
-        </span>
-    </section>
-
-
-    <section class = "moments">
-        <div class="follow-orange-wave-banner">
-            <h2>FOLLOW THE ORANGE WAVE</h2>
-            <table border: 4>
-                <tr class="misc-actions-buttons">
-                    <td width="200"><center><img src=""></center></td>
-                    <td width="200"><center><img src=""</center></td>
-                    <td width="200"><center><img src=""</center></td>
-                    <td width="200"><center><img src=""</center></td>
-                    <td width="200"><center><img src=""</center></td>
-                </tr>
-            </table>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <li><img src="https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Template/GlobalAssets/images///logos/gb-footer-logo.png">
-            <a href="#" class="footerButton">Sitemap</a>
-            <a href="#" class="footerButton">Request a Recruiter</a>
-            <a href="#" class="footerButton">Reqest an in Person Tour</a>
-            <a href="#" class="footerSpecButton"><img src="https://i.postimg.cc/CxV6g9KQ/facebook-removebg-preview-1.png" style="width:25px;height:25px;"></a>
-            <a href="#" class="footerSpecButton"><img src="https://i.postimg.cc/fL3vXvLd/twitter-removebg-preview-2.png" style="width:30px;height:25px;"></a>
-            <a href="#" class="footerSpecButton"><img src="https://i.postimg.cc/rFGNSs8f/instagram-removebg-preview.png" style="width:32px;height:25px;"></a>
-            <a href="#" class="footerSpecButton"><img src="https://i.postimg.cc/brps8zKv/linkedin-removebg-preview.png" style="width:30px;height:25px;"></a>
-            <a href="#" class="footerYoutubeButton"><img src="https://i.postimg.cc/50Mtq49m/youtube-removebg-preview-1.png" style="width:25px;height:25px;"></a>
-
-            
-            
-        </li>
-        <li><text class="footerColor">
-            <br>1617 W. Williams Drive<br>
-            <br>Phoenix, AZ 85027<br>
-            <br>623.435.4920<br>
-            <br>info@west-mec.org </text>    
-        </li>
-
-    </footer>
+        start();
+    </script>    
 </body>
 </html>
