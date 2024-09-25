@@ -1,5 +1,5 @@
 function imgCycleCall(){
-    setInterval(imgCycle, 6000)
+    setInterval(imgCycle, 3000)
 }
 let timer = 4
 let visible=true
@@ -20,6 +20,7 @@ function imgCycle(){
     }
     if (4 == timer){
         fadein()
+        console.log("img1")
         document.getElementById("img1").src=imgpath[0]
         document.getElementById("testtext").innerHTML=setText[0]
         setTimeout(function(){console.log("Wait")},4000)
@@ -29,12 +30,14 @@ function imgCycle(){
     }
     if (3 == timer){
         fadein()
+        console.log("img2")
+
         document.getElementById("img1").src=imgpath[1]
 
         document.getElementById("testtext").innerHTML=setText[0]
-        setTimeout(function(){console.log("Wait")},4000)
+        // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,3000)
+        setTimeout(fadeout,2000)
 
 
     }
@@ -45,9 +48,9 @@ function imgCycle(){
         document.getElementById("img1").src=imgpath[2]
 
         document.getElementById("testtext").innerHTML=setText[0]
-        setTimeout(function(){console.log("Wait")},4000)
+        // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,3000)
+        setTimeout(fadeout,2000)
 
     
     }
@@ -58,9 +61,9 @@ function imgCycle(){
         document.getElementById("img1").src=imgpath[3]
 
         document.getElementById("testtext").innerHTML=setText[1]
-        setTimeout(function(){console.log("Wait")},4000)
+        // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,3000)
+        setTimeout(fadeout,2000)
 
 
     }
@@ -70,10 +73,9 @@ function imgCycle(){
 
         document.getElementById("img1").src=imgpath[4]
         document.getElementById("testtext").innerHTML=setText[1]
-        setTimeout(function(){console.log("Wait")},4000)
-        opacity=1
+        // setTimeout(function(){console.log("Wait")},4000)
 
-        setTimeout(fadeout,3000)
+        setTimeout(fadeout,2000)
 
 
         timer=5
@@ -89,6 +91,7 @@ function fadeout(){
     intCount=0
 console.log(opacity)
 var img = document.getElementById("img1")
+if (opacity==1){
     var me=setInterval(function(){
         intCount++
             opacity-=0.1
@@ -101,10 +104,11 @@ var img = document.getElementById("img1")
         }
     },100)
 }
+}
 function fadein(){
     fadeCount=0
     var img = document.getElementById("img1")
-    if (opacity!=1){
+    if (opacity<=0.4 ){
         var me=setInterval(function(){
             fadeCount++
                 opacity+=0.1
