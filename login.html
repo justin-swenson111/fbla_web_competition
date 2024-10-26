@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <div class="button-group">
+            <button id="studentLoginBtn" onclick="showStudentForm()">Student Login</button>
+            <button id="employerLoginBtn" onclick="showEmployerForm()">Employer Login</button>
+        </div>
+
+        <!-- Student Login Form -->
+        <div id="studentForm" class="login-form" style="display: none;">
+            <h3>Student Login</h3>
+            <form>
+                <label for="studentEmail">ID:</label>
+                <input type="email" id="studentEmail" placeholder="Enter your email" required>
+                
+                <label for="studentPassword">Password:</label>
+                <input type="password" id="studentPassword" placeholder="Enter your password" required>
+                
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <!-- Employer Login Form -->
+        <div id="employerForm" class="login-form" style="display: none;">
+            <h3>Employer Login</h3>
+            <form>
+                <label for="employerEmail">Email:</label>
+                <input type="email" id="employerEmail" placeholder="Enter your email" required>
+                
+                <label for="employerPassword">Password:</label>
+                <input type="password" id="employerPassword" placeholder="Enter your password" required>
+                
+                <label for="employerID">Employer ID:</label>
+                <input type="text" id="employerID" placeholder="Enter your ID">
+
+                <button type="submit">Login</button>
+            </form>
+
+                <!-- Button to Show Interest Form -->
+                <button id="showInterestFormBtn" onclick="toggleInterestForm()">Don't have an ID? Fill out our Interest Form</button>
+
+                <!-- Interest Form (hidden by default) -->
+                <div id="interestForm" style="display: none;">
+                    <h4>Employer Interest Form</h4>
+                    <form>
+                        <label for="companyName">Company Name:</label>
+                        <input type="text" id="companyName" placeholder="Enter company name" required>
+                        
+                        <label for="contactNumber">Contact Number:</label>
+                        <input type="text" id="contactNumber" placeholder="Enter contact number" required>
+                        
+                        <label for="jobRole">Job Role:</label>
+                        <input type="text" id="jobRole" placeholder="Enter job role" required>
+                        
+                        <button type="submit">Submit Interest</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showStudentForm() {
+            document.getElementById("studentForm").style.display = "block";
+            document.getElementById("employerForm").style.display = "none";
+            document.getElementById("interestForm").style.display = "none"; // Hide interest form if it was open
+        }
+
+        function showEmployerForm() {
+            document.getElementById("employerForm").style.display = "block";
+            document.getElementById("studentForm").style.display = "none";
+            document.getElementById("interestForm").style.display = "none"; // Ensure interest form is hidden initially
+        }
+
+        function toggleInterestForm() {
+            const interestForm = document.getElementById("interestForm");
+            if (interestForm.style.display === "none" || interestForm.style.display === "") {
+                interestForm.style.display = "block";
+            } else {
+                interestForm.style.display = "none";
+            }
+        }
+
+    </script>
+</body>
+</html>
