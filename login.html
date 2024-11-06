@@ -188,29 +188,6 @@
             background-color: #3a4972;
             transform: scale(1.05);
         }
-
-        /* Interest Form Styling */
-        #interestForm {
-            margin-top: 20px;
-            padding: 15px;
-            border-top: 2px solid #ff4b2b;
-            background-color: #23395d;
-            border-radius: 4px;
-            overflow-y: auto;
-            max-height: 400px;
-        }
-
-
-        
-        #interestForm {
-            margin-top: 20px;
-            padding: 15px;
-            border-top: 2px solid #ff4b2b;
-            background-color: #23395d;
-            border-radius: 4px;
-            overflow-y: auto;
-            max-height: 400px;
-        }
         
         /* Footer */
         .footer {
@@ -299,26 +276,6 @@
 
                     <button type="submit">Login</button>
                 </form>
-
-                <!-- Button to Show Interest Form -->
-                <button id="showInterestFormBtn" onclick="toggleInterestForm()">Don't have an ID? Fill out our Interest Form</button>
-
-                <!-- Interest Form (hidden by default) -->
-                <div id="interestForm" style="display: none;">
-                    <h4>Employer Interest Form</h4>
-                    <form>
-                        <label for="companyName">Company Name:</label>
-                        <input type="text" id="companyName" placeholder="Enter company name" required>
-                        
-                        <label for="contactNumber">Contact Number:</label>
-                        <input type="text" id="contactNumber" placeholder="Enter contact number" required>
-                        
-                        <label for="jobRole">Job Role:</label>
-                        <input type="text" id="jobRole" placeholder="Enter job role" required>
-                        
-                        <button type="submit">Submit Interest</button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
