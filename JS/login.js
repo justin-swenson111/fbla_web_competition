@@ -1,8 +1,10 @@
  import {app, getDatabase, ref, set, get, child, update, remove}
  from './firebase.js'
+ //importing the functions from a different js script where the db is imported
 
  const db = getDatabase()
-
+ //easier way to reference the database
+//waiting until after everything is loaded before getting variables
   document.addEventListener("DOMContentLoaded", () => {
     var getStudentID = document.getElementById("studentEmail")
     var getStudentPass = document.getElementById("studentPassword")
@@ -25,12 +27,7 @@
   var submitButton = document.getElementById("StudentSubmit")
 
   submitButton.addEventListener('click',findUser)
-  function test(){
-    // alert(getStudentID.value)
-    // alert(getStudentPass)
-    // alert(getEmployerEmail)
-    // alert(getEmployerPass)
-  }
+
   function findUser(){
     const dbref = ref(db);
 
@@ -49,18 +46,6 @@
     alert(checkID.value)
   }
 
-  function createUser(){
-    set(ref(db, "Students/"+ getStudentID.value),{
-      ID: getStudentID.value,
-      Password: getStudentPass.value
-  })
-    .then(()=>{
-      alert("Data added successfully");
-  })
-  .catch((error)=>{
-      alert(error);
-  });
-  }
-  
 
+  
 
