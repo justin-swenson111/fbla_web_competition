@@ -4,21 +4,527 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEC West</title>
     <link rel = "stylesheet" type = "text/css" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+                /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 50px 10;
+            background-color: rgba(44, 62, 80, 0.7);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar .logo {
+            max-height: 50px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            position: relative;
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            color: #f57f17;
+        }
+
+        .nav-links a:hover::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background-color: #f57f17;
+            transition: width 0.3s ease;
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: #f57f17;
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background-color: #f57f17;
+            width: 100%;
+        }
+
+        .container {
+            /* Remove max-width and margin constraints */
+            padding: 80px 20px; /* Increase padding for breathing room */
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow around the container */
+        }
+
+        .section-title {
+            font-size: 2.5em; /* Increase font size for title */
+            font-weight: 900;
+            color: #1a2b4a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-title span {
+            color: #f57f17;
+        }
+
+        .content {
+            display: flex;
+            gap: 40px; /* Increase gap between sections */
+            margin-top: 30px;
+        }
+
+        .left-section, .right-section {
+            flex: 1;
+        }
+
+        .left-section .card, .right-section {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px; /* Add more padding for a cleaner look */
+            margin-bottom: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Enhance shadow for depth */
+        }
+
+        .left-section .card h2 {
+            font-size: 1.8em; /* Increase font size for section headings */
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1a2b4a;
+        }
+
+        .left-section .card img, .right-section img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .boundary-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #f57f17;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 1.1em; /* Make link text slightly larger */
+        }
+
+        .right-section h2 {
+            font-size: 1.5em; /* Increase font size for list titles */
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1a2b4a;
+        }
+
+        .district-list {
+            list-style-type: none;
+            margin-top: 15px;
+        }
+
+        .district-list li {
+            padding: 12px 0;
+            font-size: 1.2em; /* Increase font size for list items */
+            border-bottom: 1px solid #ddd;
+            color: #f57f17;
+        }
+
+        .district-list li:last-child {
+            border-bottom: none;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        .info-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-section h3 {
+            font-size: 1.3em;
+            color: #1a2b4a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .info-section ul li {
+            list-style-type: disc;
+            margin-bottom: 5px;
+        }
+
+        /* Social Media Section */
+        .west-mec-social-media-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .orange-wave{
+            color: white;
+            background-color: #f57f17;
+            font-size: 48px;
+            font-weight: 900;
+            font-style: italic;
+            padding: 10px 0;
+            width: 100%;
+            margin: 0;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .social-media-links {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            width: 100%;
+            position: relative;
+        }
+
+        .social-media-item {
+            position: relative;
+            width: 100%;
+        }
+
+        .social-media-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        .social-media-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: orange;
+            color: white;
+            border-radius: 50%;
+            padding: 15px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .social-media-button:hover {
+            background-color: #1a2b4a;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1a2b4a;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .contact-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .social-media-icons {
+            margin: 20px 0;
+        }
+
+        .social-media-icons a {
+            margin: 0 10px;
+            display: inline-block;
+        }
+
+        .social-media-icons img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .footer-note p {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+
+
+        /* Styling for the search input
+        #search {
+        margin-left: auto;
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        }
+
+        /* The container for the search results (the dropdown)
+        .search-wrapper {
+        position: absolute;
+        top: 100%; /* Position below the search bar
+        left: 0;
+        right: 0;
+        z-index: 10;
+        display: none; /* Hidden by default
+        flex-direction: column;
+        gap: .25rem;
+        max-height: 300px; /* Max height for the dropdown
+        overflow-y: auto; /* Scrollable if there are too many results
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Display the dropdown when there is input text
+        .search-wrapper.active {
+        display: flex; /* Show dropdown
+        }
+
+        /* Individual result cards in the dropdown
+        .card {
+        border: 1px solid black;
+        background-color: white;
+        padding: .5rem;
+        font-size: 1rem;
+        margin-bottom: .25rem; /* Spacing between cards
+        }
+
+        /* Header section of each result card 
+        .card > .header {
+        margin-bottom: .25rem;
+        font-weight: bold;
+        }
+
+        /* Styling for the link in the card body
+        .card .body > a {
+        text-decoration: none;
+        color: #000e8d;
+        }
+
+        /* Hide items that don't match the search query 
+        .hide {
+        display: none;
+        }
+
+        /* Phone cards grid layout for other sections (not used in search bar but included for completeness)
+        .phone-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: .25rem;
+        }
+        */
+
+
+
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <img class="logo" src="https://www.west-mec.edu/cms/lib/AZ50010839/Centricity/Template/GlobalAssets/images///logos/WM_logo_3.png">
+    <div class="navbar">
+        <a href="index.html"><img src="/media/LogoDistrict.png" alt="Logo" class="logo"></a>
         <div class="nav-links">
-            <a href="index.html" class="nav-item">Home</a>
-            <a href="aboutUs.html" class="nav-item">About Us</a>
-            <a href="hsstudents.html" class="nav-item">High School Students</a>
-            <a href="adultStudents.html" class="nav-item">Adult Students</a>
-            <a href="partners_employers.html" class="nav-item">Partners & Employers</a>
+            <!-- <input type="search" id="search" placeholder="Search..." data-search>
+            <div class="search-wrapper">
+          <div class="item-cards" data-item-cards-container></div>
+          <template data-item-template>
+            <div class="card">
+              <div class="header" data-header></div>
+              <div class="body" data-body><a class="link" href="#" data-link>Click here to be redirected!</a></div>
+            </div>
+          </template>
+        </div> -->
+            <a href="aboutUs.html">About Us</a>
+            <a href="resources.html">Resources</a>
+            <a href="./login.html">Login</a>
         </div>
-    </nav>    
+    </div> 
 
-    <div>
-        <text style="font-size: large;"><strong>Administrators</strong></text>
-        <p class="adminParagraphs">Career and Technical Education is one of the best values in education. It is essential that students have the opportunity to take programs during their high school years that will train them for a career before graduating. Our district isn’t about one pathway to success, it is about opening doors for young people and putting them to work.</p>
-        <p class="adminParagraphs">West-MEC’s mission is preparing students today for tomorrow’s careers. Our vision is to empower all students to participate fully in the economy by providing and enhancing Career and Technical Education. We reinforce our mission and vision every day by providing our students with programs in high-demand industries in need of skilled workers. Providing career-driven education and encouraging students to pursue their dreams is our priority.</p>
+    <div class="container">
+        <h1 class="section-title"><span>▶</span> WHAT IS WEST-MEC?</h1>
+    
+        <div class="content">
+            <!-- Left Section -->
+            <div class="left-section">
+                <div class="card">
+                    <h2>A FASTER WAY FORWARD</h2>
+                    <p>Western Maricopa Education Center (West-MEC) is a public school district that provides innovative Career and Technical Education (CTE) programs.</p>
+                    <p>At West-MEC, we affirm that each student houses unique potential, and our innovative programs aim to bring that to the surface. We prepare students for a bright future through industry-standard equipment, experienced instructors, and leadership opportunities.</p>
+                    <img src="https://media.licdn.com/dms/image/D4D12AQGPuzy53w69sQ/article-cover_image-shrink_720_1280/0/1696006231317?e=2147483647&v=beta&t=FqBaJGPq6zZvMr6d5aCpq4a0sT7abAkakBE9v3gWtxY" alt="West-MEC Student">
+                </div>
+    
+                <div class="card">
+                    <h2>WHO WE SERVE</h2>
+                    <p>More than 37,000 students from 48 high schools in the northern and western cities of the Phoenix Metropolitan area are enrolled in West-MEC funded programs.</p>
+                    <p>Our West-MEC boundaries span 3,876 square miles, serving students at multiple locations. If you live within the following boundaries, you can enroll in West-MEC CTE programs.</p>
+                    <img src="https://educationsnapshots.com/wp-content/uploads/sites/4/2020/08/western-maricopa-education-center-northwest-campus-4.jpg" alt="West-MEC Campus">
+                </div>
+    
+                <!-- Additional Information Section -->
+                <div class="info-section">
+                    <h3>MISSION</h3>
+                    <p>Preparing Students Today for Tomorrow’s Careers</p>
+    
+                    <h3>CORE LEARNING VALUES</h3>
+                    <ul>
+                        <li>All students can learn</li>
+                        <li>Teachers make the difference</li>
+                        <li>High expectations</li>
+                        <li>Success leads to success</li>
+                    </ul>
+    
+                    <h3>DIVERSITY STATEMENT</h3>
+                    <p>West-MEC is committed to creating a diverse, welcoming, and supportive environment in which all students and staff thrive and feel empowered to contribute to their community.</p>
+                </div>
+            </div>
+    
+            <!-- Right Section -->
+            <div class="right-section">
+                <p>West-MEC partners with 15 public school districts and 2 charter districts to enhance a variety of CTE programs. These CTE programs are elective courses offered to students at their designated high school campuses. The following high schools offer West-MEC CTE Satellite Programs. Check with your counselor for more information about these programs.</p>
+                
+                <h2>MEMBER SCHOOL HIGH SCHOOL DISTRICTS</h2>
+                <ul class="district-list">
+                    <li>AGUA FRIA UNION</li>
+                    <li>BUCKEYE UNION</li>
+                    <li>DEER VALLEY UNIFIED</li>
+                    <li>DYSART UNIFIED</li>
+                    <li>GILA BEND UNIFIED</li>
+                    <li>GLENDALE UNION</li>
+                    <li>NADABURG UNIFIED</li>
+                    <li>PARADISE VALLEY UNIFIED</li>
+                    <li>PEORIA UNIFIED</li>
+                    <li>SADDLE MOUNTAIN UNIFIED</li>
+                    <li>TOLLESON UNION</li>
+                    <li>WICKENBURG UNIFIED</li>
+                </ul>
+    
+                <h2>MEMBER SCHOOL ELEMENTARY DISTRICTS</h2>
+                <ul class="district-list">
+                    <li>CARTWRIGHT ELEMENTARY</li>
+                    <li>LITTLETON ELEMENTARY</li>
+                    <li>PENDERGAST ELEMENTARY</li>
+                </ul>
+    
+                <h2>PARTNER CHARTER HIGH SCHOOL DISTRICTS</h2>
+                <ul class="district-list">
+                    <li>PARADISE HONORS</li>
+                    <li>RIDGELINE ACADEMY</li>
+                </ul>
+                <br>
+                <br>
+                <br>
+                <iframe 
+                    src="https://viewer.mapme.com/e15b8efa-34b8-491a-96b1-76a271ff6c0f/location/f2e27491-ce83-48c3-b961-18d1b876b427" 
+                    width="100%" 
+                    height="600" 
+                    frameborder="0" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
     </div>
+
+    <div class="west-mec-social-media-section">
+        <div class="orange-wave">
+            <p>FOLLOW THE ORANGE WAVE</p>
+        </div>
+        <div class="social-media-links">
+            <div class="social-media-item">
+                <a href="#"><img src="./media/socialimage1.jpg"></a>
+                <div class="social-media-button"><i class="fa-brands fa-facebook"></i></div>
+            </div>
+            <div class="social-media-item">
+                <a href="#"><img src="./media/socialimage2.jpg"></a>
+                <div class="social-media-button"><i class="fa-brands fa-twitter"></i></div>
+            </div>
+            <div class="social-media-item">
+                <a href="#"><img src="./media/socialimage3.jpg"></a>
+                <div class="social-media-button"><i class="fa-brands fa-instagram"></i></div>
+            </div>
+            <div class="social-media-item">
+                <a href="#"><img src="./media/socialimage4.jpg"></a>
+                <div class="social-media-button"><i class="fa-brands fa-linkedin"></i></div>
+            </div>
+            <div class="social-media-item">
+                <a href="#"><img src="./media/socialimage5.jpg"></a>
+                <div class="social-media-button"><i class="fa-brands fa-youtube"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="contact-info">
+                <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
+                <p>P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025 &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org</p>
+            </div>
+            <div class="social-media-icons">
+                <a href="#" class="social-button"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-youtube"></i></a>
+            </div>            
+            <div class="footer-note">
+                <p>West-MEC strives to provide web content that is accessible to all. If you are unable to access any content, please contact info@west-mec.org.</p>
+            </div>
+        </div>
+    </footer>   
+</body>
+
+<script src="/searchbar.js" defer></script>
+</html>

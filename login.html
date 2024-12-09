@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            min-height: 100vh; /* Ensures full height */
+            margin: 0;
+        }
+
+        .login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 50px;
+            background-color: rgba(44, 62, 80, 0.7);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar .logo {
+            max-height: 50px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            position: relative;
+            transition: color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            color: #f57f17;
+        }
+
+        .nav-links a:hover::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background-color: #f57f17;
+            transition: width 0.3s ease;
+            width: 100%;
+        }
+
+        .nav-links a.active {
+            color: #f57f17;
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background-color: #f57f17;
+            width: 100%;
+        }
+
+        /* Container Styling */
+        .login-container {
+            width: 350px;
+            padding: 20px;
+            background-color: #16213e;
+            border-radius: 8px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Header Styling */
+        h2, h3, h4 {
+            text-align: center;
+            color: #ff4b2b;
+        }
+
+        /* Button Group Styling */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .button-group button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 10px;
+            font-size: 1rem;
+            background-color: #ff4b2b;
+            border: none;
+            color: #e8e8e8;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .button-group button:hover {
+            background-color: #ff7635;
+            transform: scale(1.05);
+        }
+
+        /* Form Styling */
+        .login-form {
+            margin-top: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff4b2b;
+            font-weight: bold;
+        }
+
+        .login-form input {
+            width: 95%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ff4b2b;
+            border-radius: 4px;
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-form input:focus {
+            border-color: #ff7635;
+        }
+
+        .login-form button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            background-color: #ff4b2b;
+            border: none;
+            color: #e8e8e8;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .login-form button[type="submit"]:hover {
+            background-color: #ff7635;
+            transform: scale(1.05);
+        }
+
+        #showInterestFormBtn {
+            width: 100%;
+            background-color: #23395d;
+            color: #e8e8e8;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        #showInterestFormBtn:hover {
+            background-color: #3a4972;
+            transform: scale(1.05);
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #1a2b4a;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .contact-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .social-media-icons {
+            margin: 20px 0;
+        }
+
+        .social-media-icons a {
+            margin: 0 10px;
+            display: inline-block;
+        }
+
+        .social-media-icons img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .footer-note p {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html"><img src="/media/LogoDistrict.png" alt="Logo" class="logo"></a>
+        <div class="nav-links">
+            <a href="./aboutUs.html">About Us</a>
+            <a href="resources.html">Resources</a>
+            <a href="./login.html">Login</a>
+        </div>
+      </div>
+
+    <div class="login-wrapper">
+        <div class="login-container">
+            <h2>Login</h2>
+            <div class="button-group">
+                <button id="studentLoginBtn" onclick="showStudentForm()">Student Login</button>
+                <button id="employerLoginBtn" onclick="showEmployerForm()">Employer Login</button>
+            </div>
+
+            <!-- Student Login Form -->
+            <div id="studentForm" class="login-form" style="display: none;">
+                <h3>Student Login</h3>
+                <form>
+                    <label for="studentEmail">ID:</label>
+                    <input type="email" id="studentEmail" placeholder="Enter your email" required>
+                    
+                    <label for="studentPassword">Password:</label>
+                    <input type="password" id="studentPassword" placeholder="Enter your password" required>
+                    
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+
+            <!-- Employer Login Form -->
+            <div id="employerForm" class="login-form" style="display: none;">
+                <h3>Employer Login</h3>
+                <form>
+                    <label for="employerEmail">Email:</label>
+                    <input type="email" id="employerEmail" placeholder="Enter your email" required>
+                    
+                    <label for="employerPassword">Password:</label>
+                    <input type="password" id="employerPassword" placeholder="Enter your password" required>
+                    
+                    <label for="employerID">Employer ID:</label>
+                    <input type="text" id="employerID" placeholder="Enter your ID">
+
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="contact-info">
+                <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
+                <p>P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025 &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org</p>
+            </div>
+            <div class="social-media-icons">
+                <a href="#" class="social-button"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-youtube"></i></a>
+            </div>            
+            <div class="footer-note">
+                <p>West-MEC strives to provide web content that is accessible to all. If you are unable to access any content, please contact info@west-mec.org.</p>
+            </div>
+        </div>
+    </footer>  
+
+    <script>
+        function showStudentForm() {
+            document.getElementById("studentForm").style.display = "block";
+            document.getElementById("employerForm").style.display = "none";
+            document.getElementById("interestForm").style.display = "none"; // Hide interest form if it was open
+        }
+
+        function showEmployerForm() {
+            document.getElementById("employerForm").style.display = "block";
+            document.getElementById("studentForm").style.display = "none";
+            document.getElementById("interestForm").style.display = "none"; // Ensure interest form is hidden initially
+        }
+
+        function toggleInterestForm() {
+            const interestForm = document.getElementById("interestForm");
+            if (interestForm.style.display === "none" || interestForm.style.display === "") {
+                interestForm.style.display = "block";
+                interestForm.scrollIntoView({ behavior: "smooth" });
+            } else {
+                interestForm.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
