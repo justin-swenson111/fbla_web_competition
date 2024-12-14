@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>West-MEC NECareers</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link rel="shortcut icon" href="./media/favicon.ico" type="image/x-icon" />
+    <style>
+
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+      }
+
+      /* Navbar */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 50px;
+        background-color: rgba(44, 62, 80, 0.7);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
+
+      .navbar .logo {
+        max-height: 50px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 15px;
+        position: relative;
+        transition: color 0.3s ease, background-color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        background-color: rgba(44, 62, 80, 0.9);
+        color: #f57f17;
+      }
+
+      .nav-links a:hover::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background-color: #f57f17;
+        transition: width 0.3s ease;
+        width: 100%;
+      }
+
+      .nav-links a.active {
+        color: #f57f17;
+      }
+
+      .nav-links a.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background-color: #f57f17;
+        width: 100%;
+      }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="index.html"
+          ><img
+            src="./media/logo.png"
+            alt="Logo"
+            class="logo"
+            height="200px"
+            width="auto"
+        /></a>
+        <div class="nav-links">
+          <a href="aboutUs.html">About Us</a>
+          <a href="resources.html">Resources</a>
+          <a href="./login.html">Login</a>
+        </div>
+      </div>
+      <div class="backdrop">
+        <h1>Login</h1>
+        <form action="#">
+            <input type="radio" name="occupation" id="emp">
+            <label for="emp">I am an Employer</label>
+            <br>
+            <input type="radio" name="occupation" id="stu">
+            <label for="emp">I am an Student</label>
+            <br>
+            <input type="text" id="inpID" placeholder="Enter your ID:">
+            <br>
+            <input type="password" id="inpID" placeholder="Enter your Password:">
+            <br>
+            <input type="submit" value="Login">
+            <br>
+        </form>
+      </div>
+</body>
+

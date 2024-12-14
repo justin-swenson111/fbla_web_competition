@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial;
         }
 
         body {
@@ -17,84 +17,114 @@
             background-color: #f0f0f0;
         }
 
-                /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 50px;
-            background-color: rgba(44, 62, 80, 0.7);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+        .mainpart{
+            margin-right: 75px;
+            margin-left: 75px;
         }
 
-        .navbar .logo {
-            max-height: 50px;
-        }
+        /* Navbar */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 50px;
+        background-color: rgba(44, 62, 80, 0.7);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+      .navbar .logo {
+        max-height: 50px;
+      }
 
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 10px 15px;
-            position: relative;
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
 
-        .nav-links a:hover {
-            background-color: rgba(44, 62, 80, 0.9);
-            color: #f57f17;
-        }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 15px;
+        position: relative;
+        transition: color 0.3s ease, background-color 0.3s ease;
+      }
 
-        .nav-links a:hover::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background-color: #f57f17;
-            transition: width 0.3s ease;
-            width: 100%;
-        }
+      .nav-links a:hover {
+        background-color: rgba(44, 62, 80, 0.9);
+        color: #f57f17;
+      }
 
-        .nav-links a.active {
-            color: #f57f17;
-        }
+      .nav-links a:hover::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background-color: #f57f17;
+        transition: width 0.3s ease;
+        width: 100%;
+      }
 
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background-color: #f57f17;
-            width: 100%;
-        }
+      .nav-links a.active {
+        color: #f57f17;
+      }
+
+      .nav-links a.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background-color: #f57f17;
+        width: 100%;
+      }
 
         /* Main */
         .heading-main{
             display: flex;
+            align-items: center;
+        }
+
+        .heading-main > h1{
+            font-weight: 800;
+            font-size: 60px;
+        }
+
+        .heading-main > img {
+            width: auto;
+            height: 70px;
+        }
+
+        /* Hiring Text */
+        .hiring > h2 {
+            font-weight: 800;
+            font-size: x-large;
+            padding-bottom: 30px;
         }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <a href="index.html"><img src="/media/LogoDistrict.png" alt="Logo" class="logo"></a>
+        <a href="index.html"
+          ><img
+            src="./media/logo.png"
+            alt="Logo"
+            class="logo"
+            height="200px"
+            width="auto"
+        /></a>
         <div class="nav-links">
-            <a href="aboutUs.html">About Us</a>
-            <a href="resources.html">Resources</a>
-            <a href="./login.html">Login</a>
+          <a href="aboutUs.html">About Us</a>
+          <a href="resources.html">Resources</a>
+          <a href="./login.html">Login</a>
         </div>
     </div>
 
@@ -103,24 +133,30 @@
     <br>
     <br>
 
-    <div class="heading-main">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1_d6gB7lxIuh2R_o_KGMOUNwxyVI7Z9X90A&s">
-        <h1>Career Services</h1>
-    </div>
-    
-    <h2>Hiring & Internship Services</h2>
-    <p>We understand you are busy and sometimes recruiting skilled candidates takes a back seat. West-MEC’s Career Services Department can help. We offer a search and screening process tailored to your specific hiring needs at no cost to you.</p>
-    <p>Make sure that you are on the right path by contacting us today at 623.738.0057</p>
-    <a>Register as a Community Partner or Employer</a>
-    <a>West-MEC Job Board</a>
-    <p>To Request an Education Verification, please fax 623.738.0028; be sure to include the student's authorization and year of completion.</p>
-    <img src="https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_3/v1703603997/westmecorg/whjkmab4mfnlvoby3nav/ma_halfpagepictall.png">
+    <div class="mainpart">
+        <div class="heading-main">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1_d6gB7lxIuh2R_o_KGMOUNwxyVI7Z9X90A&s">
+            <h1>Career Services</h1>
+        </div>
 
-    <div>
-        <h2>Services Include</h2>
-        <p>Job Posting Exposure</p>
-        <p>Resume Screening</p>
-        <p>Interview Setup and Arrangements</p>
+        <br>
+        
+        <div class="hiring">
+            <h2>Hiring & Internship Services</h2>
+            <p><span>We understand you are busy and sometimes recruiting skilled candidates takes a back seat. West-MEC’s Career Services Department can help. We offer a search and screening process tailored to your specific hiring needs at no cost to you.</span></p>
+            <p><span>Make sure that you are on the right path by contacting us today at 623.738.0057</span></p>
+            <a><span>Register as a Community Partner or Employer</span></a>
+            <a><span>West-MEC Job Board</span></a>
+            <p><span>To Request an Education Verification, please fax 623.738.0028; be sure to include the student's authorization and year of completion.</span></p>
+            <img src="https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_3/v1703603997/westmecorg/whjkmab4mfnlvoby3nav/ma_halfpagepictall.png">
+        </div>
+
+        <div class="aside">
+            <h2>Services Include</h2>
+            <p>Job Posting Exposure</p>
+            <p>Resume Screening</p>
+            <p>Interview Setup and Arrangements</p>
+        </div>
     </div>
 </body>
 </html>
