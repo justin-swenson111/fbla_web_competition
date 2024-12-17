@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Resources</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <style>
         * {
             margin: 0;
@@ -18,8 +22,8 @@
         }
 
         .mainpart{
-            margin-right: 75px;
-            margin-left: 75px;
+            margin-right: 100px;
+            margin-left: 100px;
         }
 
         /* Navbar */
@@ -103,12 +107,88 @@
             height: 70px;
         }
 
-        /* Hiring Text */
-        .hiring > h2 {
-            font-weight: 800;
-            font-size: x-large;
-            padding-bottom: 30px;
+                /* Styling for the Hiring section */
+        .hiring{
+          margin-bottom: 30px;
         }
+        
+        .hiring > h2 {
+            font-size: 28px; /* Increase the font size */
+            color: #2c3e50; /* A professional dark blue color */
+            margin-bottom: 15px;
+        }
+
+        .hiring p {
+            font-size: 18px; /* Increase font size for readability */
+            line-height: 1.6; /* Add better line spacing */
+            color: #4a4a4a; /* A soft dark gray for better readability */
+        }
+
+        .hiring a {
+            font-size: 18px; /* Make links consistent with the paragraph text */
+            font-weight: bold; /* Highlight the links */
+            color: #f57f17; /* Add an accent color for links */
+            text-decoration: none;
+            margin-top: 10px;
+            display: inline-block;
+            transition: color 0.3s ease;
+        }
+
+        .hiring a:hover {
+            color: #2c3e50; /* Hover effect for links */
+        }
+
+        .hiring img {
+            margin-top: 20px;
+            width: 50%; /* Make the image responsive */
+            height: auto;
+            border-radius: 8px; /* Add rounded corners for a modern look */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+        }
+
+        /* Add spacing between the hiring section and aside */
+        .mainbody {
+            gap: 30px; /* Flexbox gap for spacing between elements */
+        }
+
+        /* Footer */
+      .footer {
+        background-color: #1a2b4a;
+        padding: 30px;
+        text-align: center;
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .contact-info p {
+        margin: 5px 0;
+        font-size: 16px;
+      }
+
+      .social-media-icons {
+        margin: 20px 0;
+      }
+
+      .social-media-icons a {
+        margin: 0 10px;
+        display: inline-block;
+      }
+
+      .social-media-icons img {
+        width: 24px;
+        height: 24px;
+      }
+
+      .footer-note p {
+        font-size: 14px;
+        margin-top: 20px;
+      }
+      
     </style>
 </head>
 <body>
@@ -140,23 +220,56 @@
         </div>
 
         <br>
+        <div class="mainbody">
+          <div class="hiring">
+              <h2>Hiring & Internship Services</h2>
+              <p><span>We understand you are busy and sometimes recruiting skilled candidates takes a back seat. West-MEC’s Career Services Department can help. We offer a search and screening process tailored to your specific hiring needs at no cost to you.</span></p>
+              <p><span>Make sure that you are on the right path by contacting us today at 623.738.0057</span></p>
+              <a href="" style="display:block;"><span>Register as a Community Partner or Employer</span></a>
+              <a href=""><span>West-MEC Job Board</span></a>
+              <p><span>To Request an Education Verification, please fax 623.738.0028; be sure to include the student's authorization and year of completion.</span></p>
+              <img src="https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_3/v1703603997/westmecorg/whjkmab4mfnlvoby3nav/ma_halfpagepictall.png">
+          </div>
+        </div>
         
-        <div class="hiring">
-            <h2>Hiring & Internship Services</h2>
-            <p><span>We understand you are busy and sometimes recruiting skilled candidates takes a back seat. West-MEC’s Career Services Department can help. We offer a search and screening process tailored to your specific hiring needs at no cost to you.</span></p>
-            <p><span>Make sure that you are on the right path by contacting us today at 623.738.0057</span></p>
-            <a><span>Register as a Community Partner or Employer</span></a>
-            <a><span>West-MEC Job Board</span></a>
-            <p><span>To Request an Education Verification, please fax 623.738.0028; be sure to include the student's authorization and year of completion.</span></p>
-            <img src="https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_3/v1703603997/westmecorg/whjkmab4mfnlvoby3nav/ma_halfpagepictall.png">
-        </div>
-
-        <div class="aside">
-            <h2>Services Include</h2>
-            <p>Job Posting Exposure</p>
-            <p>Resume Screening</p>
-            <p>Interview Setup and Arrangements</p>
-        </div>
+        
     </div>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="contact-info">
+          <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
+          <p>
+            P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025
+            &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org
+          </p>
+        </div>
+        <div class="social-media-icons">
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-facebook"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-twitter"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-instagram"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-linkedin"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-youtube"></i
+          ></a>
+        </div>
+        <div class="footer-note">
+          <p>
+            West-MEC strives to provide web content that is accessible to all.
+            If you are unable to access any content, please contact
+            info@west-mec.org.
+          </p>
+        </div>
+      </div>
+    </footer>
+
 </body>
 </html>
