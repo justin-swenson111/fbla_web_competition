@@ -1,47 +1,42 @@
 <?php
-// Database connection settings
+// Database connection details
 $servername = "localhost";
-$username = "root";     // Your MySQL username
-$password = "";         // Your MySQL password
-$dbname = "db1";        // Your database name
+$username = "root";
+$password = ""; // Default password for XAMPP is empty
+$dbname = "db1";
 
-// Create a connection to the database
+// Establish a connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
+// Check the connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Process the form data
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $firstName = $_POST['first-name'];
-    $lastName = $_POST['last-name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+// Get form data
+$first_name = $_POST['fname'];
+$last_name = $_POST['lname'];
+$email = $_POST['email'];
+$password = $_POST['password'];
 
-    // Simple validation (add more as needed)
-    if (empty($firstName) || empty($lastName) || empty($email) || empty($password)) {
-        die("All fields are required.");
-    }
+// Hash the password for security
+$hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Hash the password for security
-    $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+// SQL query to insert data
+$sql = "INSERT INTO user (fname, lname, email, pass) VALUES (?, ?, ?, ?)";
 
-    // Prepare SQL statement to insert data
-    $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $firstName, $lastName, $email, $hashedPassword);
+// Prepare and bind
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ssss", $first_name, $last_name, $email, $hashed_password);
 
-    // Execute the statement
-    if ($stmt->execute()) {
-        echo "Signup successful! You can now <a href='login.html'>login</a>.";
-    } else {
-        echo "Error: " . $stmt->error;
-    }
-
-    // Close the statement and connection
-    $stmt->close();
+// Execute the query
+if ($stmt->execute()) {
+    echo "Registration successful!";
+} else {
+    echo "Error: " . $stmt->error;
 }
 
+// Close the statement and connection
+$stmt->close();
 $conn->close();
 ?>
