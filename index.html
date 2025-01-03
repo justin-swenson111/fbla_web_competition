@@ -435,6 +435,272 @@
         font-size: 14px;
         margin-top: 20px;
       }
+
+      /* For tablets and smaller screens */
+      @media screen and (max-width: 1024px) {
+        /* Navbar adjustments */
+        .navbar {
+          padding: 10px 20px;
+        }
+
+        .nav-links {
+          gap: 15px;
+        }
+
+        .nav-links a {
+          font-size: 14px;
+          padding: 8px 12px;
+        }
+
+        /* Banner adjustments */
+        .banner {
+          height: 600px;
+        }
+
+        .bottom-bar {
+          height: 60px; /* Scale height down */
+          gap: 10px; /* Reduce gap between elements */
+        }
+
+        .bottom-bar-text {
+          font-size: medium; /* Adjust font size for text */
+          padding-right: 20px; /* Reduce padding */
+        }
+
+        .bottom-bar button {
+          padding: 10px 20px; /* Scale button size */
+          font-size: 14px; /* Adjust font size for buttons */
+        }
+
+        .text-section h1 {
+          font-size: 80px;
+        }
+
+        .text-section p {
+          font-size: 30px;
+        }
+
+        /* Hire container adjustments */
+        .hire-container {
+          flex-direction: column;
+          gap: 40px;
+          padding: 20px;
+        }
+
+        .video-section {
+          margin-right: 0;
+          width: 100%;
+        }
+
+        .companies-list {
+          gap: 30px;
+        }
+
+        .hireheader {
+          font-size: 48px;
+        }
+
+        .hirefooter {
+          font-size: 24px;
+        }
+      }
+
+      /* For mobile devices */
+      @media screen and (max-width: 768px) {
+        /* Navbar mobile styling */
+        .navbar {
+          flex-direction: column;
+          padding: 10px;
+        }
+
+        .nav-links {
+          flex-direction: column;
+          width: 100%;
+          text-align: center;
+          gap: 10px;
+        }
+
+        .nav-links a {
+          display: block;
+          padding: 10px;
+        }
+
+        /* Banner mobile adjustments */
+        .banner {
+          height: 400px;
+        }
+
+        .text-section h1 {
+          font-size: 48px;
+        }
+
+        .text-section p {
+          font-size: 20px;
+        }
+
+        /* Bottom bar mobile */
+        .bottom-bar {
+          flex-direction: column;
+          height: auto;
+          padding: 20px;
+          gap: 15px;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .bottom-bar-text {
+          padding: 0;
+          margin: 0;
+          text-align: center;
+          width: 100%;
+        }
+
+        .bottom-bar button {
+          margin: 0 auto;
+          width: fit-content;
+          min-width: 200px; /* Ensures consistent button width */
+        }
+
+        /* Button container mobile */
+        .program-button {
+          width: 100%;
+          max-width: 300px;
+        }
+
+        /* Map container mobile */
+        .visit-us-container {
+          margin: 20px;
+        }
+
+        .map-container iframe {
+          width: 100% !important;
+          height: 300px !important;
+        }
+
+        h2 {
+          font-size: 36px;
+        }
+
+        /* Companies section mobile */
+        .companies-container {
+          padding: 20px;
+        }
+
+        .companies-list {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .column {
+          width: 100%;
+        }
+
+        /* Social media section mobile */
+        .orange-wave {
+          font-size: 36px;
+        }
+
+        .social-media-links {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          gap: 0;
+        }
+
+        .social-media-item {
+          width: 100%;
+        }
+
+        .social-media-item img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+
+        .social-media-button {
+          width: 50px;
+          height: 50px;
+          font-size: 20px;
+        }
+      }
+
+      /* Small mobile devices */
+      @media screen and (max-width: 480px) {
+        .text-section h1 {
+          font-size: 36px;
+        }
+
+        .text-section p {
+          font-size: 16px;
+        }
+
+        .hireheader {
+          font-size: 36px;
+        }
+
+        .hirefooter {
+          font-size: 20px;
+        }
+
+        .column p {
+          font-size: 16px;
+        }
+
+        .orange-wave {
+          font-size: 28px;
+        }
+
+        .social-media-links {
+          flex-direction: column;
+        }
+
+        .social-media-item {
+          width: 100%;
+        }
+      }
+
+      /* Fix for fixed navbar pushing content */
+      body {
+        padding-top: 70px;
+      }
+
+      /* Additional mobile menu improvements */
+      @media screen and (max-width: 768px) {
+        .navbar {
+          position: relative;
+          background-color: rgba(44, 62, 80, 1);
+        }
+
+        body {
+          padding-top: 0;
+        }
+
+        .logo {
+          margin: 10px 0;
+        }
+
+        /* Ensure images are responsive */
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        /* Make video responsive */
+        video {
+          max-width: 100%;
+          height: auto;
+        }
+
+        /* Improve touch targets */
+        button,
+        .nav-links a,
+        .social-media-button {
+          min-height: 44px;
+          min-width: 44px;
+          padding: 12px;
+        }
+      }
     </style>
   </head>
   <body>

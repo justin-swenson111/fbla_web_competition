@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employer Dashboard</title>
+</head>
+<body>
+  <h1>Create a Job Posting</h1>
+  <form action="create_job_posting.php" method="POST">
+    <label for="title">Job Title:</label><br>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="description">Job Description:</label><br>
+    <textarea id="description" name="description" rows="5" required></textarea><br><br>
+
+    <label for="requirements">Requirements:</label><br>
+    <textarea id="requirements" name="requirements" rows="4" required></textarea><br><br>
+
+    <label for="salary">Salary:</label><br>
+    <input type="number" id="salary" name="salary" step="0.01" required><br><br>
+
+    <label for="location">Location:</label><br>
+    <input type="text" id="location" name="location" required><br><br>
+
+    <button type="submit">Create Job</button>
+  </form>
+</body>
+</html>

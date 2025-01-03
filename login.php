@@ -47,10 +47,10 @@ if (isset($_POST['email'], $_POST['password'])) {
 
             // Redirect to respective dashboard based on user type
             if ($user['user_type'] == 'student') {
-                header("Location: studentdash.html");
+                header("Location: studentdash.php");
                 exit();
             } else {
-                header("Location: employeedash.html");
+                header("Location: employerdash.html");
                 exit();
             }
         } else {
