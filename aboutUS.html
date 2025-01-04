@@ -26,7 +26,7 @@
         align-items: center;
         padding: 10px 50px;
         background-color: rgba(44, 62, 80, 0.7);
-        position: fixed;
+        position: sticky;
         top: 0;
         width: 100%;
         z-index: 1000;
@@ -300,8 +300,82 @@
             font-size: 14px;
             margin-top: 20px;
         }
+         /* Mobile Responsive Styles */
+         @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 20px;
+                flex-direction: column;
+                align-items: center;
+            }
 
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
 
+            .content {
+                flex-direction: column;
+            }
+
+            .left-section, .right-section {
+                flex: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+
+            .social-media-links {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .social-media-button {
+                padding: 12px;
+                font-size: 20px;
+            }
+
+            .footer {
+                padding: 20px;
+            }
+
+            .contact-info p, .footer-note p {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .content {
+                gap: 20px;
+            }
+
+            .left-section .card, .right-section .card {
+                padding: 20px;
+            }
+
+            .district-list li {
+                font-size: 1.1em;
+            }
+
+            .social-media-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .social-media-button {
+                font-size: 18px;
+                padding: 10px;
+            }
+        }
 
         /* Styling for the search input
         #search {
