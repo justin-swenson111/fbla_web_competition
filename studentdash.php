@@ -14,34 +14,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'student') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
+    <link rel="stylesheet" href="navbar-responsive.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
             margin: 0;
             padding: 0;
-        }
-
-        .dashboard-header {
-            background-color: #007bff;
-            color: white;
-            padding: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .dashboard-header h1 {
-            margin: 0;
-        }
-
-        .user-info {
-            float: right;
-            color: white;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
         }
 
         .filters {
@@ -143,13 +122,29 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'student') {
     </style>
 </head>
 <body>
-    <div class="dashboard-header">
-        <div class="container">
-            <div class="user-info">
-                Welcome, <?php echo htmlspecialchars($_SESSION['fname']); ?> 
-                <a href="logout.php" class="logout-btn">Logout</a>
-            </div>
-            <h1>Student Dashboard</h1>
+    <div class="navbar">
+        <!-- Logo -->
+        <a href="index.html">
+            <img
+            src="./media/logo.png"
+            alt="Logo"
+            class="logo"
+            height="200px"
+            width="auto"
+            />
+        </a>
+
+        <!-- Navigation Links -->
+        <div class="nav-links">
+            <a href="aboutUs.html">About Us</a>
+            <a href="resources.html">Resources</a>
+            <a href="./login.html">Login</a>
+        </div>
+
+        <!-- User Info and Logout -->
+        <div class="user-info">
+            Welcome, <?php echo htmlspecialchars($_SESSION['fname']); ?>
+            <a href="logout.php" class="logout-btn">Logout</a>
         </div>
     </div>
 

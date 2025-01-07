@@ -1,0 +1,130 @@
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 50px;
+  background-color: rgba(44, 62, 80, 0.7);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.navbar .logo {
+  max-height: 50px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 15px;
+  position: relative;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-links a:hover {
+  background-color: rgba(44, 62, 80, 0.9);
+  color: #f57f17;
+}
+
+.nav-links a:hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: #f57f17;
+  transition: width 0.3s ease;
+  width: 100%;
+}
+
+.nav-links a.active {
+  color: #f57f17;
+}
+
+.nav-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: #f57f17;
+  width: 100%;
+}
+
+/* User Info Section */
+.navbar .user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 16px;
+  color: white;
+}
+
+.navbar .user-info .logout-btn {
+  color: #f57f17;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 5px 10px;
+  border: 1px solid #f57f17;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.navbar .user-info .logout-btn:hover {
+  background-color: #f57f17;
+  color: white;
+}
+
+/* Navbar Styles for Tablet and Mobile Devices */
+@media screen and (max-width: 768px) {
+  .navbar {
+    padding: 5px 20px;
+    flex-direction: column;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .nav-links a {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .navbar .logo {
+    max-height: 40px; /* Reduce logo height */
+    margin-bottom: 5px; /* Reduce margin */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .navbar {
+    padding: 5px 10px;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  .navbar .logo {
+    max-height: 35px;
+  }
+}

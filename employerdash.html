@@ -1,29 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employer Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Job Posting</title>
+    <style>
+        form {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], 
+        input[type="number"], 
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-  <h1>Create a Job Posting</h1>
-  <form action="create_job_posting.php" method="POST">
-    <label for="title">Job Title:</label><br>
-    <input type="text" id="title" name="title" required><br><br>
+    <h1>Create a Job Posting</h1>
+    
+    <form action="create_job_posting.php" method="POST">
+        <div>
+            <label for="title">Job Title:</label>
+            <input type="text" id="title" name="title" required 
+                   maxlength="100" placeholder="e.g., Senior Software Engineer">
+        </div>
 
-    <label for="description">Job Description:</label><br>
-    <textarea id="description" name="description" rows="5" required></textarea><br><br>
+        <div>
+            <label for="description">Job Description:</label>
+            <textarea id="description" name="description" rows="5" required
+                      placeholder="Detailed description of the role and responsibilities"></textarea>
+        </div>
 
-    <label for="requirements">Requirements:</label><br>
-    <textarea id="requirements" name="requirements" rows="4" required></textarea><br><br>
+        <div>
+            <label for="requirements">Requirements:</label>
+            <textarea id="requirements" name="requirements" rows="4" required
+                      placeholder="List the required skills, experience, and qualifications"></textarea>
+        </div>
 
-    <label for="salary">Salary:</label><br>
-    <input type="number" id="salary" name="salary" step="0.01" required><br><br>
+        <div>
+            <label for="salary">Salary (Annual):</label>
+            <input type="number" id="salary" name="salary" step="0.01" required
+                   min="0" placeholder="Enter annual salary">
+        </div>
 
-    <label for="location">Location:</label><br>
-    <input type="text" id="location" name="location" required><br><br>
+        <div>
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required
+                   maxlength="255" placeholder="e.g., New York, NY">
+        </div>
 
-    <button type="submit">Create Job</button>
-  </form>
+        <div>
+            <label for="job_type">Job Type:</label>
+            <select id="job_type" name="job_type" required>
+                <option value="">Select Job Type</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+                <option value="Internship">Internship</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="application_deadline">Application Deadline:</label>
+            <input type="date" id="application_deadline" name="application_deadline" required>
+        </div>
+
+        <!-- Hidden field for company name - will be auto-filled by PHP -->
+        <input type="hidden" id="company_name" name="company" 
+               value="<?php echo htmlspecialchars($authorized_company); ?>">
+
+        <button type="submit">Create Job Posting</button>
+    </form>
+
+    <script>
+        // Set minimum date for application deadline to today
+        const dateInput = document.getElementById('application_deadline');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.min = today;
+    </script>
 </body>
 </html>
