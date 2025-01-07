@@ -1,194 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup Page</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - NECareers</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <style>
-        /* General Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+      /* General Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
 
-        body {
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+      body {
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 50px;
-            background-color: rgba(44, 62, 80, 0.7);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
+      /* Navbar */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 50px;
+        background-color: rgba(44, 62, 80, 0.7);
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
 
-        .navbar .logo {
-            max-height: 50px;
-        }
+      .navbar .logo {
+        max-height: 50px;
+      }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
+      .nav-links {
+        display: flex;
+        gap: 30px;
+      }
 
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 10px 15px;
-            position: relative;
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 15px;
+        position: relative;
+        transition: color 0.3s ease, background-color 0.3s ease;
+      }
 
-        .nav-links a:hover {
-            background-color: rgba(44, 62, 80, 0.9);
-            color: #f57f17;
-        }
+      .nav-links a:hover {
+        background-color: rgba(44, 62, 80, 0.9);
+        color: #f57f17;
+      }
 
-        .nav-links a:hover::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background-color: #f57f17;
-            transition: width 0.3s ease;
-            width: 100%;
-        }
+      .nav-links a:hover::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background-color: #f57f17;
+        transition: width 0.3s ease;
+        width: 100%;
+      }
 
-        .nav-links a.active {
-            color: #f57f17;
-        }
+      .nav-links a.active {
+        color: #f57f17;
+      }
 
-        .nav-links a.active::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background-color: #f57f17;
-            width: 100%;
-        }
+      .nav-links a.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background-color: #f57f17;
+        width: 100%;
+      }
 
-        /* Background Section */
-        .background {
-            flex-grow: 1; /* Takes up space between nav and footer */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: url(https://www.dlrgroup.com/media/2021/06/30_14130_00_N16_weblg-2140x1427.jpg);
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
+      /* Background Section */
+      .background {
+        flex-grow: 1; /* Takes up space between nav and footer */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: url(https://www.dlrgroup.com/media/2021/06/30_14130_00_N16_weblg-2140x1427.jpg);
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
 
-        /* Signup Container */
-        .signup-container {
-            background-color: white;
-            width: 100%;
-            max-width: 500px;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 2;
-            margin: 20vh auto; /* Centered on the background */
-        }
+      /* Signup Container */
+      .signup-container {
+        background-color: white;
+        width: 100%;
+        max-width: 500px;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 2;
+        margin: 20vh auto; /* Centered on the background */
+      }
 
-        .signup-container h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
+      .signup-container h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
 
-        /* Form Styles */
-        .signup-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+      /* Form Styles */
+      .signup-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
 
-        .form-group label {
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
+      .form-group label {
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #2c3e50;
+      }
 
-        .form-group input {
-            padding: 10px;
-            border: 1px solid #dcdcdc;
-            border-radius: 5px;
-            font-size: 16px;
-            color: #333;
-        }
+      .form-group input {
+        padding: 10px;
+        border: 1px solid #dcdcdc;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #333;
+      }
 
-        .form-group input:focus {
-            border-color: #f57f17;
-            outline: none;
-        }
+      .form-group input:focus {
+        border-color: #f57f17;
+        outline: none;
+      }
 
-        /* Signup Button */
-        .signup-btn {
-            padding: 10px 20px;
-            background-color: #f57f17;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+      /* Signup Button */
+      .signup-btn {
+        padding: 10px 20px;
+        background-color: #f57f17;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
 
-        .signup-btn:hover {
-            background-color: #e65100;
-        }
+      .signup-btn:hover {
+        background-color: #e65100;
+      }
 
-        /* Bottom Links */
-        .bottom-links {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
+      /* Bottom Links */
+      .bottom-links {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+      }
 
-        }
+      .bottom-links a {
+        color: #f57f17;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
 
-        .bottom-links a {
-            color: #f57f17;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease;
-        }
+      .bottom-links a:hover {
+        color: #2c3e50;
+      }
 
-        .bottom-links a:hover {
-            color: #2c3e50;
-        }
-
-        /* Footer */
+      /* Footer */
       .footer {
         background-color: #1a2b4a;
         padding: 15px;
@@ -227,78 +226,232 @@
         margin-top: 20px;
       }
 
+      /* Tablet and Mobile Responsiveness */
+      @media screen and (max-width: 768px) {
+        /* Navbar adjustments */
+        .navbar {
+          padding: 5px 20px;
+          flex-direction: column;
+        }
+
+        .nav-links {
+          flex-direction: column;
+          gap: 10px;
+          width: 100%;
+          align-items: center;
+          padding: 10px 0;
+        }
+
+        .nav-links a {
+          width: 100%;
+          text-align: center;
+          font-size: 14px;
+        }
+
+        .navbar .logo {
+          max-height: 40px; /* Reduce logo height */
+          margin-bottom: 5px; /* Reduce margin */
+        }
+
+        /* Signup container adjustments */
+        .signup-container {
+          width: 90%;
+          margin: 120px auto 40px; /* Increased top margin to account for navbar */
+          padding: 20px;
+        }
+
+        .signup-container h1 {
+          font-size: 24px;
+        }
+
+        /* Form adjustments */
+        .form-group input {
+          font-size: 14px;
+          padding: 8px;
+        }
+
+        /* Bottom links adjustments */
+        .bottom-links {
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+          text-align: center;
+        }
+
+        /* Footer adjustments */
+        .footer {
+          padding: 10px;
+        }
+
+        .contact-info p {
+          font-size: 14px;
+        }
+
+        .social-media-icons {
+          margin: 15px 0;
+        }
+
+        .footer-note p {
+          font-size: 12px;
+        }
+      }
+
+      /* Small Mobile Devices */
+      @media screen and (max-width: 480px) {
+        /* Navbar further adjustments */
+        .navbar {
+          padding: 5px 10px;
+        }
+
+        .nav-links a {
+          font-size: 12px;
+          padding: 5px 8px;
+        }
+
+        .navbar .logo {
+          max-height: 35px;
+        }
+
+        /* Signup container adjustments */
+        .signup-container {
+          width: 95%;
+          margin: 100px auto 20px;
+          padding: 15px;
+        }
+
+        .signup-container h1 {
+          font-size: 20px;
+        }
+
+        /* Form adjustments */
+        .form-group label {
+          font-size: 14px;
+        }
+
+        .form-group input {
+          font-size: 13px;
+          padding: 6px;
+        }
+
+        .signup-btn {
+          padding: 8px 16px;
+          font-size: 14px;
+        }
+
+        /* Footer adjustments */
+        .social-media-icons a {
+          margin: 0 5px;
+        }
+
+        .social-media-icons img {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      /* Additional improvements */
+      @media screen and (max-width: 768px) {
+        /* Background section adjustment */
+        .background {
+          padding: 20px;
+        }
+
+        /* Ensure proper spacing for fixed navbar */
+        body {
+          padding-top: 200px;
+        }
+
+        /* Improve touch targets */
+        button,
+        .nav-links a,
+        .signup-btn {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Navbar -->
     <div class="navbar">
-        <a href="index.html">
-            <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
-        </a>
-        <div class="nav-links">
-            <a href="aboutUs.html">About Us</a>
-            <a href="resources.html">Resources</a>
-            <a href="./login.html">Login</a>
-        </div>
+      <a href="index.html">
+        <img
+          src="./media/logo.png"
+          alt="Logo"
+          class="logo"
+          height="200px"
+          width="auto"
+        />
+      </a>
+      <div class="nav-links">
+        <a href="aboutUs.html">About Us</a>
+        <a href="resources.html">Resources</a>
+        <a href="./login.html">Login</a>
+      </div>
     </div>
 
     <!-- Background Section -->
     <div class="background">
-        <div class="signup-container">
-            <h1>Login</h1>
-            <form id="login-form" class="signup-form" action="login.php" method="POST">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="signup-btn">Login</button>
-            </form>
+      <div class="signup-container">
+        <h1>Login</h1>
+        <form
+          id="login-form"
+          class="signup-form"
+          action="login.php"
+          method="POST"
+        >
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required />
+          </div>
+          <button type="submit" class="signup-btn">Login</button>
+        </form>
 
-            <div class="bottom-links">
-                <a href="#" class="login">Forgot Password?</a>
-                <a href="studentsignup.html" class="student-signup">Sign Up</a>
-            </div>
+        <div class="bottom-links">
+          <a href="#" class="login">Forgot Password?</a>
+          <a href="studentsignup.html" class="student-signup">Sign Up</a>
         </div>
+      </div>
     </div>
-    
+
     <footer class="footer" id="footer">
-        <div class="footer-content">
-            <div class="contact-info">
-            <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
-            <p>
-                P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025
-                &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org
-            </p>
-            </div>
-            <div class="social-media-icons">
-            <a href="#" class="social-button"
-                ><i class="fa-brands fa-facebook"></i
-            ></a>
-            <a href="#" class="social-button"
-                ><i class="fa-brands fa-twitter"></i
-            ></a>
-            <a href="#" class="social-button"
-                ><i class="fa-brands fa-instagram"></i
-            ></a>
-            <a href="#" class="social-button"
-                ><i class="fa-brands fa-linkedin"></i
-            ></a>
-            <a href="#" class="social-button"
-                ><i class="fa-brands fa-youtube"></i
-            ></a>
-            </div>
-            <div class="footer-note">
-            <p>
-                West-MEC strives to provide web content that is accessible to all.
-                If you are unable to access any content, please contact
-                info@west-mec.org.
-            </p>
-            </div>
+      <div class="footer-content">
+        <div class="contact-info">
+          <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
+          <p>
+            P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025
+            &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org
+          </p>
         </div>
+        <div class="social-media-icons">
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-facebook"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-twitter"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-instagram"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-linkedin"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-youtube"></i
+          ></a>
+        </div>
+        <div class="footer-note">
+          <p>
+            West-MEC strives to provide web content that is accessible to all.
+            If you are unable to access any content, please contact
+            info@west-mec.org.
+          </p>
+        </div>
+      </div>
     </footer>
-</body>
+  </body>
 </html>
