@@ -51,3 +51,18 @@ CREATE TABLE job_postings (
     job_type VARCHAR(50),
     FOREIGN KEY (employer_id) REFERENCES employers(id)
 );
+
+CREATE TABLE job_applications (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    job_posting_id INT NOT NULL,
+    employer_id INT NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Pending', -- e.g., Pending, Reviewed, Accepted, Rejected
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    cover_letter TEXT,
+    resume_path VARCHAR(255), -- Path to resume if submitted with the application
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_posting_id) REFERENCES job_postings(id) ON DELETE CASCADE,
+    FOREIGN KEY (employer_id) REFERENCES employers(id) ON DELETE CASCADE
+);
