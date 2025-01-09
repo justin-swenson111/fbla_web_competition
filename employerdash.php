@@ -1,10 +1,44 @@
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = ""; // Default password for XAMPP is empty
+$dbname = "fbla";
+
+// Database connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']); // Check if user is logged in by checking user_id
+$userType = $_SESSION['user_type'] ?? null; // Check user type from session
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Job Posting</title>
+    <link rel="stylesheet" href="navbar-responsive.css">
     <style>
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
         form {
             max-width: 600px;
             margin: 20px auto;
@@ -34,6 +68,57 @@
     </style>
 </head>
 <body>
+<div class="navbar">
+      <!-- Logo -->
+      <a href="index.php">
+          <img
+              src="./media/logo.png"
+              alt="Logo"
+              class="logo"
+              height="200px"
+              width="auto"
+          />
+      </a>
+
+      <!-- Navigation Links -->
+      <div class="nav-links">
+          <a href="aboutUs.php">About Us</a>
+          <a href="resources.php">Resources</a>
+
+          <!-- Display Login Link if Not Logged In -->
+          <?php if (!$isLoggedIn): ?>
+              <a href="./loginpage.php">Login</a>
+          <?php endif; ?>
+
+          <!-- Display Links for Logged-In Users -->
+          <?php if ($isLoggedIn): ?>
+              <!-- Show Student Dashboard if user is a student -->
+              <?php if ($_SESSION['user_type'] === 'student'): ?>
+                  <a href="studentdash.php">Student Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Show Employer Dashboard if user is an employer -->
+              <?php if ($_SESSION['user_type'] === 'employer'): ?>
+                  <a href="employerdash.php">Employer Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Profile/Settings Link -->
+              <a href="settings.php" class="profile-link">
+                  <img
+                      src="./media/socialimage2.jpg"
+                      alt="Profile"
+                      class="profile-pic"
+                  />
+              </a>
+          <?php endif; ?>
+      </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+
     <h1>Create a Job Posting</h1>
     
     <form action="create_job_posting.php" method="POST">

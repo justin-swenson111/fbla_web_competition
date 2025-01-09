@@ -1,3 +1,24 @@
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = ""; // Default password for XAMPP is empty
+$dbname = "fbla";
+
+// Database connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']); // Check if user is logged in by checking user_id
+$userType = $_SESSION['user_type'] ?? null; // Check user type from session
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -235,16 +256,50 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <div class="navbar">
-        <a href="index.html">
-            <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
-        </a>
-        <div class="nav-links">
-            <a href="aboutUs.html">About Us</a>
-            <a href="resources.html">Resources</a>
-            <a href="./login.html">Login</a>
-        </div>
+      <!-- Logo -->
+      <a href="index.php">
+          <img
+              src="./media/logo.png"
+              alt="Logo"
+              class="logo"
+              height="200px"
+              width="auto"
+          />
+      </a>
+
+      <!-- Navigation Links -->
+      <div class="nav-links">
+          <a href="aboutUs.php">About Us</a>
+          <a href="resources.php">Resources</a>
+
+          <!-- Display Login Link if Not Logged In -->
+          <?php if (!$isLoggedIn): ?>
+              <a href="./loginpage.php">Login</a>
+          <?php endif; ?>
+
+          <!-- Display Links for Logged-In Users -->
+          <?php if ($isLoggedIn): ?>
+              <!-- Show Student Dashboard if user is a student -->
+              <?php if ($_SESSION['user_type'] === 'student'): ?>
+                  <a href="studentdash.php">Student Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Show Employer Dashboard if user is an employer -->
+              <?php if ($_SESSION['user_type'] === 'employer'): ?>
+                  <a href="employerdash.php">Employer Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Profile/Settings Link -->
+              <a href="settings.php" class="profile-link">
+                  <img
+                      src="./media/socialimage2.jpg"
+                      alt="Profile"
+                      class="profile-pic"
+                  />
+              </a>
+          <?php endif; ?>
+      </div>
     </div>
 
     <!-- Background Section -->
@@ -280,8 +335,8 @@
                 <button type="submit" class="signup-btn">Sign Up</button>
             </form>
             <div class="bottom-links">
-                <a href="login.html" class="login">Login</a>
-                <a href="employersignup.html" class="employer-signup">Employer Signup</a>
+                <a href="loginpage.php" class="login">Login</a>
+                <a href="employersignup.php" class="employer-signup">Employer Signup</a>
             </div>
         </div>
     </div>    

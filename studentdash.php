@@ -15,6 +15,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'student') {
     exit();
 }
 
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']); // Check if user is logged in by checking user_id
+$userType = $_SESSION['user_type'] ?? null; // Check user type from session
+
+// Get student's first name from database
+$stmt = $conn->prepare("SELECT fname FROM students WHERE id = ?");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $_SESSION['fname'] = $row['fname'];
+}
+
 // Handle AJAX request for filtered jobs
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');
@@ -122,7 +136,7 @@ if ($conn->connect_error) {
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 100%; /* Ensure container doesn't cause overflow */
             margin: 0 auto;
             padding: 20px;
         }
@@ -208,21 +222,6 @@ if ($conn->connect_error) {
             cursor: not-allowed;
         }
 
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-
         .no-jobs {
             text-align: center;
             padding: 40px;
@@ -304,24 +303,51 @@ if ($conn->connect_error) {
 </head>
 <body>
     <div class="navbar">
-        <!-- Logo -->
-        <a href="index.html">
-            <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto"/>
-        </a>
+      <!-- Logo -->
+      <a href="index.php">
+          <img
+              src="./media/logo.png"
+              alt="Logo"
+              class="logo"
+              height="200px"
+              width="auto"
+          />
+      </a>
 
-        <!-- Navigation Links -->
-        <div class="nav-links">
-            <a href="aboutUs.html">About Us</a>
-            <a href="resources.html">Resources</a>
-            <a href="./login.html">Login</a>
-        </div>
+      <!-- Navigation Links -->
+      <div class="nav-links">
+          <a href="aboutUs.php">About Us</a>
+          <a href="resources.php">Resources</a>
 
-        <!-- User Info and Logout -->
-        <div class="user-info">
-            Welcome, <?php echo htmlspecialchars($_SESSION['fname']); ?>
-            <a href="logout.php" class="logout-btn">Logout</a>
-        </div>
+          <!-- Display Login Link if Not Logged In -->
+          <?php if (!$isLoggedIn): ?>
+              <a href="./loginpage.php">Login</a>
+          <?php endif; ?>
+
+          <!-- Display Links for Logged-In Users -->
+          <?php if ($isLoggedIn): ?>
+              <!-- Show Student Dashboard if user is a student -->
+              <?php if ($_SESSION['user_type'] === 'student'): ?>
+                  <a href="studentdash.php">Student Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Show Employer Dashboard if user is an employer -->
+              <?php if ($_SESSION['user_type'] === 'employer'): ?>
+                  <a href="employerdash.php">Employer Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Profile/Settings Link -->
+              <a href="settings.php" class="profile-link">
+                  <img
+                      src="./media/socialimage2.jpg"
+                      alt="Profile"
+                      class="profile-pic"
+                  />
+              </a>
+          <?php endif; ?>
+      </div>
     </div>
+
 
     <br>
     <br>

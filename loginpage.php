@@ -1,3 +1,24 @@
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = ""; // Default password for XAMPP is empty
+$dbname = "fbla";
+
+// Database connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['fname']);
+$userType = $_SESSION['user_type'] ?? null; // Check user type
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -337,23 +358,51 @@
     </style>
   </head>
   <body>
-    <!-- Navbar -->
     <div class="navbar">
-      <a href="index.html">
+    <!-- Logo -->
+    <a href="index.php">
         <img
-          src="./media/logo.png"
-          alt="Logo"
-          class="logo"
-          height="200px"
-          width="auto"
+            src="./media/logo.png"
+            alt="Logo"
+            class="logo"
+            height="200px"
+            width="auto"
         />
-      </a>
-      <div class="nav-links">
-        <a href="aboutUs.html">About Us</a>
-        <a href="resources.html">Resources</a>
-        <a href="./login.html">Login</a>
-      </div>
+    </a>
+
+    <!-- Navigation Links -->
+    <div class="nav-links">
+        <a href="aboutUs.php">About Us</a>
+        <a href="resources.php">Resources</a>
+
+        <!-- Display Login Link if Not Logged In -->
+        <?php if (!$isLoggedIn): ?>
+            <a href="./loginpage.php">Login</a>
+        <?php endif; ?>
+
+        <!-- Display Links for Logged-In Users -->
+        <?php if ($isLoggedIn): ?>
+            <!-- Show Student Dashboard if user is a student -->
+            <?php if ($userType === 'student'): ?>
+                <a href="studentdash.php">Student Dashboard</a>
+            <?php endif; ?>
+
+            <!-- Show Teacher Dashboard if user is a teacher -->
+            <?php if ($userType === 'employer'): ?>
+                <a href="employerdash.php">Teacher Dashboard</a>
+            <?php endif; ?>
+
+            <!-- Profile/Settings Link -->
+            <a href="settings.php" class="profile-link">
+                <img
+                    src="./media/socialimage2.jpg"
+                    alt="Profile"
+                    class="profile-pic"
+                />
+            </a>
+        <?php endif; ?>
     </div>
+  </div>
 
     <!-- Background Section -->
     <div class="background">
@@ -377,8 +426,8 @@
         </form>
 
         <div class="bottom-links">
-          <a href="#" class="login">Forgot Password?</a>
-          <a href="studentsignup.html" class="student-signup">Sign Up</a>
+          <a href="loginpage.php" class="login">Forgot Password?</a>
+          <a href="studentsignup.php" class="student-signup">Sign Up</a>
         </div>
       </div>
     </div>

@@ -7,18 +7,27 @@
   background-color: rgba(44, 62, 80, 0.7);
   position: fixed;
   top: 0;
+  left: 0; /* Ensure it starts from the left */
   width: 100%;
   z-index: 1000;
   backdrop-filter: blur(10px);
+  box-sizing: border-box; /* Ensures consistent padding across all pages */
+}
+
+body {
+  margin: 0; /* Remove any default browser margins that might cause overflow */
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling caused by layout overflow */
 }
 
 .navbar .logo {
   max-height: 50px;
 }
 
+/* Navigation Links */
 .nav-links {
   display: flex;
-  gap: 30px;
+  gap: 20px;
 }
 
 .nav-links a {
@@ -28,66 +37,31 @@
   font-weight: bold;
   padding: 10px 15px;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-.nav-links a:hover {
-  background-color: rgba(44, 62, 80, 0.9);
-  color: #f57f17;
-}
-
-.nav-links a:hover::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background-color: #f57f17;
-  transition: width 0.3s ease;
-  width: 100%;
-}
-
-.nav-links a.active {
-  color: #f57f17;
-}
-
-.nav-links a.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background-color: #f57f17;
-  width: 100%;
-}
-
-/* User Info Section */
-.navbar .user-info {
+.profile-link {
+  padding: 0 !important; /* Override default nav-links a padding */
   display: flex;
   align-items: center;
-  gap: 15px;
-  font-size: 16px;
-  color: white;
 }
 
-.navbar .user-info .logout-btn {
-  color: #f57f17;
-  text-decoration: none;
-  font-weight: bold;
-  padding: 5px 10px;
-  border: 1px solid #f57f17;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+.profile-pic {
+  width: 35px; /* Match height of nav links (approximately) */
+  height: 35px; /* Match height of nav links (approximately) */
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.navbar .user-info .logout-btn:hover {
-  background-color: #f57f17;
-  color: white;
+.profile-pic:hover {
+  transform: scale(1.1);
 }
 
-/* Navbar Styles for Tablet and Mobile Devices */
+/* Responsive Adjustments */
 @media screen and (max-width: 768px) {
   .navbar {
     padding: 5px 20px;

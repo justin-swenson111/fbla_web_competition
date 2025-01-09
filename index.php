@@ -1,3 +1,24 @@
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = ""; // Default password for XAMPP is empty
+$dbname = "fbla";
+
+// Database connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']); // Check if user is logged in by checking user_id
+$userType = $_SESSION['user_type'] ?? null; // Check user type from session
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,7 +31,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
     <link rel="shortcut icon" href="./media/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="navbar-responsive.css">
+    <link rel="stylesheet" href="navbar-responsive.css" />
 
     <style>
       * {
@@ -442,7 +463,6 @@
 
       /* Tablet and Mobile Responsiveness */
       @media screen and (max-width: 768px) {
-
         /* 2. Banner adjustments */
         .banner {
           height: 500px;
@@ -497,7 +517,6 @@
 
       /* Small Mobile Devices */
       @media screen and (max-width: 320px) {
-
         /* Banner text adjustments */
         .text-section h1 {
           font-size: 40px;
@@ -586,18 +605,48 @@
   </head>
   <body>
     <div class="navbar">
-      <a href="index.html"
-        ><img
-          src="./media/logo.png"
-          alt="Logo"
-          class="logo"
-          height="200px"
-          width="auto"
-      /></a>
+      <!-- Logo -->
+      <a href="index.php">
+          <img
+              src="./media/logo.png"
+              alt="Logo"
+              class="logo"
+              height="200px"
+              width="auto"
+          />
+      </a>
+
+      <!-- Navigation Links -->
       <div class="nav-links">
-        <a href="aboutUs.html">About Us</a>
-        <a href="resources.html">Resources</a>
-        <a href="./login.html">Login</a>
+          <a href="aboutUs.php">About Us</a>
+          <a href="resources.php">Resources</a>
+
+          <!-- Display Login Link if Not Logged In -->
+          <?php if (!$isLoggedIn): ?>
+              <a href="./loginpage.php">Login</a>
+          <?php endif; ?>
+
+          <!-- Display Links for Logged-In Users -->
+          <?php if ($isLoggedIn): ?>
+              <!-- Show Student Dashboard if user is a student -->
+              <?php if ($_SESSION['user_type'] === 'student'): ?>
+                  <a href="studentdash.php">Student Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Show Employer Dashboard if user is an employer -->
+              <?php if ($_SESSION['user_type'] === 'employer'): ?>
+                  <a href="employerdash.php">Employer Dashboard</a>
+              <?php endif; ?>
+
+              <!-- Profile/Settings Link -->
+              <a href="settings.php" class="profile-link">
+                  <img
+                      src="./media/socialimage2.jpg"
+                      alt="Profile"
+                      class="profile-pic"
+                  />
+              </a>
+          <?php endif; ?>
       </div>
     </div>
 

@@ -50,7 +50,7 @@ if (isset($_POST['email'], $_POST['password'])) {
                 header("Location: studentdash.php");
                 exit();
             } else {
-                header("Location: employerdash.html");
+                header("Location: employerdash.php");
                 exit();
             }
         } else {
