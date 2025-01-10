@@ -11,7 +11,6 @@ CREATE TABLE students (
     bio TEXT,
     skills TEXT,
     education TEXT,
-    resume_path VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE,
     last_login TIMESTAMP NULL
 );

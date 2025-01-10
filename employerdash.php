@@ -100,6 +100,7 @@ if ($conn->connect_error) {
               <!-- Show Employer Dashboard if user is an employer -->
               <?php if ($_SESSION['user_type'] === 'employer'): ?>
                   <a href="employerdash.php">Employer Dashboard</a>
+                  <a href="applicationsrecieved.php">Skibidi</a>
               <?php endif; ?>
 
               <!-- Profile/Settings Link -->

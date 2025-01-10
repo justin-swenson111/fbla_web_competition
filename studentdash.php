@@ -3,10 +3,9 @@ session_start();
 
 $servername = "localhost";
 $username = "root";
-$password = ""; // Default password for XAMPP is empty
+$password = ""; 
 $dbname = "fbla";
 
-// Database connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check if user is logged in as a student
@@ -15,11 +14,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'student') {
     exit();
 }
 
-// Check if the user is logged in
-$isLoggedIn = isset($_SESSION['user_id']); // Check if user is logged in by checking user_id
-$userType = $_SESSION['user_type'] ?? null; // Check user type from session
+$isLoggedIn = isset($_SESSION['user_id']);
+$userType = $_SESSION['user_type'] ?? null;
 
-// Get student's first name from database
+// Get student's first name
 $stmt = $conn->prepare("SELECT fname FROM students WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
@@ -29,9 +27,59 @@ if ($result->num_rows > 0) {
     $_SESSION['fname'] = $row['fname'];
 }
 
+// Handle AJAX request for applications
+if (isset($_GET['get_applications'])) {
+    header('Content-Type: application/json');
+    
+    // Pagination parameters
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = 10;
+    $offset = ($page - 1) * $limit;
+    
+    // Get total count for pagination
+    $total_query = "SELECT COUNT(*) as count FROM job_applications WHERE student_id = ?";
+    $total_stmt = $conn->prepare($total_query);
+    $total_stmt->bind_param("i", $_SESSION['user_id']);
+    $total_stmt->execute();
+    $total_result = $total_stmt->get_result();
+    $total_row = $total_result->fetch_assoc();
+    $total_records = $total_row['count'];
+    $total_pages = ceil($total_records / $limit);
+    
+    // Get applications with pagination
+    $apps_sql = "SELECT ja.*, jp.title, jp.company_name
+                FROM job_applications ja 
+                JOIN job_postings jp ON ja.job_posting_id = jp.id 
+                WHERE ja.student_id = ? 
+                ORDER BY ja.applied_at DESC
+                LIMIT ? OFFSET ?";
+    
+    $apps_stmt = $conn->prepare($apps_sql);
+    $apps_stmt->bind_param("iii", $_SESSION['user_id'], $limit, $offset);
+    $apps_stmt->execute();
+    $apps_result = $apps_stmt->get_result();
+    
+    $applications = [];
+    while ($app = $apps_result->fetch_assoc()) {
+        $applications[] = $app;
+    }
+    
+    echo json_encode([
+        'applications' => $applications,
+        'total_pages' => $total_pages,
+        'current_page' => $page
+    ]);
+    exit();
+}
+
 // Handle AJAX request for filtered jobs
 if (isset($_GET['ajax'])) {
     header('Content-Type: application/json');
+    
+    // Pagination parameters
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = 10;
+    $offset = ($page - 1) * $limit;
     
     // Get filter parameters
     $search = isset($_GET['search']) ? $_GET['search'] : '';
@@ -40,7 +88,7 @@ if (isset($_GET['ajax'])) {
     $job_type = isset($_GET['jobType']) ? $_GET['jobType'] : '';
 
     // Build the query
-    $query = "SELECT * FROM job_postings WHERE is_active = 1";
+    $query = "SELECT SQL_CALC_FOUND_ROWS * FROM job_postings WHERE is_active = 1";
     $params = [];
     $types = "";
 
@@ -76,7 +124,9 @@ if (isset($_GET['ajax'])) {
         }
     }
 
-    $query .= " ORDER BY created_at DESC";
+    $query .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+    array_push($params, $limit, $offset);
+    $types .= "ii";
 
     $stmt = $conn->prepare($query);
     if (!empty($params)) {
@@ -85,10 +135,16 @@ if (isset($_GET['ajax'])) {
 
     $stmt->execute();
     $result = $stmt->get_result();
+    
+    // Get total number of records for pagination
+    $total_result = $conn->query("SELECT FOUND_ROWS()");
+    $total_row = $total_result->fetch_row();
+    $total_records = $total_row[0];
+    $total_pages = ceil($total_records / $limit);
+    
     $jobs = [];
 
     while ($row = $result->fetch_assoc()) {
-        // Check if user has already applied
         $check_sql = "SELECT id FROM job_applications WHERE job_posting_id = ? AND student_id = ?";
         $check_stmt = $conn->prepare($check_sql);
         $check_stmt->bind_param("ii", $row['id'], $_SESSION['user_id']);
@@ -102,7 +158,11 @@ if (isset($_GET['ajax'])) {
         $jobs[] = $row;
     }
 
-    echo json_encode($jobs);
+    echo json_encode([
+        'jobs' => $jobs,
+        'total_pages' => $total_pages,
+        'current_page' => $page
+    ]);
     exit();
 }
 
@@ -112,11 +172,6 @@ $locations_result = $conn->query($locations_query);
 
 if (!$locations_result) {
     echo "Error fetching locations: " . $conn->error;
-}
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
 }
 ?>
 
@@ -432,7 +487,206 @@ if ($conn->connect_error) {
             };
         }
 
-        function fetchFilteredJobs() {
+        // Add the new handleJobApplication function
+        function handleJobApplication(form, jobId) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                
+                fetch('apply_job.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the job card
+                        const jobCard = form.closest('.job-posting');
+                        jobCard.style.opacity = '0';
+                        setTimeout(() => {
+                            jobCard.remove();
+                        }, 300);
+                        
+                        // Refresh the applications section
+                        fetchApplications(1);
+                        
+                        // Show success message
+                        alert('Application submitted successfully!');
+                    } else {
+                        alert(data.message || 'Error submitting application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting application');
+                });
+            });
+        }
+
+    // Add the new fetchApplications function
+        function handleJobApplication(form, jobId) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const jobCard = form.closest('.job-posting');
+                
+                fetch('apply_job.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Add fade-out animation
+                        jobCard.style.transition = 'opacity 0.3s ease-out';
+                        jobCard.style.opacity = '0';
+                        
+                        // Remove the job card after animation
+                        setTimeout(() => {
+                            jobCard.remove();
+                        }, 300);
+                        
+                        // Refresh the applications section
+                        fetchApplications(1);
+                        
+                        // Show success message
+                        alert('Application submitted successfully!');
+                        
+                        // Refresh remaining jobs list to ensure proper pagination
+                        fetchFilteredJobs(1);
+                    } else {
+                        alert(data.message || 'Error submitting application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting application');
+                });
+            });
+        }
+
+        function handleJobApplication(form, jobId) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const jobCard = form.closest('.job-posting');
+                
+                fetch('apply_job.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Add fade-out animation
+                        jobCard.style.transition = 'opacity 0.3s ease-out';
+                        jobCard.style.opacity = '0';
+                        
+                        // Remove the job card after animation
+                        setTimeout(() => {
+                            jobCard.remove();
+                        }, 300);
+                        
+                        // Refresh the applications section
+                        fetchApplications(1);
+                        
+                        // Show success message
+                        alert('Application submitted successfully!');
+                        
+                        // Get current page before refreshing
+                        const currentPage = getCurrentPageFromPagination('job-list');
+                        
+                        // Refresh remaining jobs list to ensure proper pagination
+                        fetchFilteredJobs(currentPage);
+                    } else {
+                        alert(data.message || 'Error submitting application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting application');
+                });
+            });
+        }
+
+        function getCurrentPageFromPagination(containerId) {
+            const container = document.getElementById(containerId);
+            const activePage = container.querySelector('.pagination .active');
+            return activePage ? parseInt(activePage.textContent) : 1;
+        }
+
+        function createPaginationControls(currentPage, totalPages, onPageClick) {
+            if (totalPages <= 1) return '';
+            
+            let paginationHtml = '<div class="pagination">';
+            
+            // Previous button
+            paginationHtml += `
+                <a href="#" 
+                onclick="${onPageClick}(${Math.max(1, currentPage - 1)}); return false;"
+                class="${currentPage === 1 ? 'disabled' : ''}"
+                ${currentPage === 1 ? 'disabled="disabled"' : ''}>
+                Previous
+                </a>
+            `;
+
+            // Calculate range of pages to show
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            // Adjust range if at edges
+            if (startPage <= 3) {
+                endPage = Math.min(5, totalPages);
+                startPage = 1;
+            }
+            if (endPage >= totalPages - 2) {
+                startPage = Math.max(1, totalPages - 4);
+                endPage = totalPages;
+            }
+
+            // First page and ellipsis
+            if (startPage > 1) {
+                paginationHtml += `
+                    <a href="#" onclick="${onPageClick}(1); return false;">1</a>
+                    ${startPage > 2 ? '<span class="ellipsis">...</span>' : ''}
+                `;
+            }
+
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHtml += `
+                    <a href="#" 
+                    onclick="${onPageClick}(${i}); return false;"
+                    class="${i === currentPage ? 'active' : ''}">${i}</a>
+                `;
+            }
+
+            // Last page and ellipsis
+            if (endPage < totalPages) {
+                paginationHtml += `
+                    ${endPage < totalPages - 1 ? '<span class="ellipsis">...</span>' : ''}
+                    <a href="#" onclick="${onPageClick}(${totalPages}); return false;">${totalPages}</a>
+                `;
+            }
+
+            // Next button
+            paginationHtml += `
+                <a href="#" 
+                onclick="${onPageClick}(${Math.min(totalPages, currentPage + 1)}); return false;"
+                class="${currentPage === totalPages ? 'disabled' : ''}"
+                ${currentPage === totalPages ? 'disabled="disabled"' : ''}>
+                Next
+                </a>
+            `;
+
+            paginationHtml += '</div>';
+            return paginationHtml;
+        }
+
+        function fetchFilteredJobs(page = 1) {
             const jobList = document.getElementById('job-list');
             jobList.innerHTML = '<div class="loading">Loading jobs...</div>';
 
@@ -443,6 +697,7 @@ if ($conn->connect_error) {
             
             const params = new URLSearchParams({
                 ajax: true,
+                page: page,
                 search: searchText,
                 location: locationFilter,
                 salary: salaryFilter,
@@ -451,64 +706,101 @@ if ($conn->connect_error) {
             
             fetch(`?${params}`)
                 .then(response => response.json())
-                .then(jobs => {
-                    if (jobs.length === 0) {
-                        jobList.innerHTML = "<div class='no-jobs'>No job postings match your filters.</div>";
-                        return;
+                .then(data => {
+                    let html = '';
+                    if (data.jobs.length === 0) {
+                        html = "<div class='no-jobs'>No job postings match your filters.</div>";
+                    } else {
+                        // Filter out jobs that the user has already applied to
+                        const availableJobs = data.jobs.filter(job => !job.already_applied);
+                        
+                        if (availableJobs.length === 0) {
+                            html = "<div class='no-jobs'>You have applied to all available jobs matching your filters.</div>";
+                        } else {
+                            html = availableJobs.map(job => `
+                                <div class="job-posting">
+                                    <h3>${escapeHtml(job.title)} at ${escapeHtml(job.company_name)}</h3>
+                                    <div class="job-meta">
+                                        <div class="meta-item">
+                                            <span>💰 $${job.formatted_salary}</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <span>📍 ${escapeHtml(job.location)}</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <span>🕒 ${escapeHtml(job.job_type)}</span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <span>📅 Deadline: ${job.formatted_deadline}</span>
+                                        </div>
+                                    </div>
+                                    <div class="job-details">
+                                        <p><strong>Description:</strong><br>
+                                        ${escapeHtml(job.description).replace(/\n/g, '<br>')}</p>
+                                        
+                                        <p><strong>Requirements:</strong><br>
+                                        ${escapeHtml(job.requirements).replace(/\n/g, '<br>')}</p>
+                                    </div>
+
+                                    <form class="application-form" action="apply_job.php" method="POST" enctype="multipart/form-data">
+                                        <input type="hidden" name="job_posting_id" value="${job.id}">
+                                        <textarea name="cover_letter" 
+                                                placeholder="Write your application message here... Include why you're interested in this position and what makes you a good fit."
+                                                required></textarea>
+                                        <div class="file-upload">
+                                            <label for="resume">Upload Resume (PDF, DOC, DOCX):</label>
+                                            <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx" required>
+                                        </div>
+                                        <button type="submit" class="apply-button">Apply Now</button>
+                                    </form>
+                                </div>
+                            `).join('');
+                        }
+                        
+                        // Add enhanced pagination controls
+                        html += createPaginationControls(data.current_page, data.total_pages, 'fetchFilteredJobs');
                     }
                     
-                    jobList.innerHTML = jobs.map(job => `
-                        <div class="job-posting">
-                            <h3>${escapeHtml(job.title)} at ${escapeHtml(job.company_name)}</h3>
-                            <div class="job-meta">
-                                <div class="meta-item">
-                                    <span>💰 $${job.formatted_salary}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <span>📍 ${escapeHtml(job.location)}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <span>🕒 ${escapeHtml(job.job_type)}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <span>📅 Deadline: ${job.formatted_deadline}</span>
-                                </div>
-                            </div>
-                            <div class="job-details">
-                                <p><strong>Description:</strong><br>
-                                ${escapeHtml(job.description).replace(/\n/g, '<br>')}</p>
-                                
-                                <p><strong>Requirements:</strong><br>
-                                ${escapeHtml(job.requirements).replace(/\n/g, '<br>')}</p>
-                            </div>
-
-                            ${job.already_applied ? 
-                                `<p style="color: #28a745;">✓ You have already applied for this position</p>` :
-                                `<form class="application-form" action="apply_job.php" method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="job_posting_id" value="${job.id}">
-                                    <textarea name="cover_letter" 
-                                            placeholder="Write your application message here... Include why you're interested in this position and what makes you a good fit."
-                                            required></textarea>
-                                    <div class="file-upload">
-                                        <label for="resume">Upload Resume (PDF, DOC, DOCX):</label>
-                                        <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx" required>
-                                    </div>
-                                    <button type="submit" class="apply-button">Apply Now</button>
-                                </form>`
-                            }
-                        </div>
-                    `).join('');
-                    
-                    // Reattach event listeners to new forms
+                    jobList.innerHTML = html;
                     attachFormListeners();
                 })
                 .catch(error => {
-                    console.error('Error fetching filtered jobs:', error);
-                    jobList.innerHTML = 
-                        "<div class='no-jobs'>An error occurred while fetching jobs. Please try again later.</div>";
+                    console.error('Error:', error);
+                    jobList.innerHTML = "<div class='no-jobs'>An error occurred while fetching jobs.</div>";
                 });
         }
 
+        function fetchApplications(page = 1) {
+            fetch(`?get_applications=true&page=${page}`)
+                .then(response => response.json())
+                .then(data => {
+                    const applicationsDiv = document.querySelector('.my-applications');
+                    let html = '<h2>My Applications</h2>';
+                    
+                    if (data.applications.length > 0) {
+                        data.applications.forEach(app => {
+                            const statusClass = `status-${app.status.toLowerCase()}`;
+                            html += `
+                                <div class='job-posting'>
+                                    <h3>${escapeHtml(app.title)} at ${escapeHtml(app.company_name)}</h3>
+                                    <span class='application-status ${statusClass}'>
+                                        ${app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                                    </span>
+                                    <p>Applied on: ${new Date(app.applied_at).toLocaleDateString()}</p>
+                                </div>
+                            `;
+                        });
+                        
+                        // Add enhanced pagination controls for applications
+                        html += createPaginationControls(data.current_page, data.total_pages, 'fetchApplications');
+                    } else {
+                        html += "<p>You haven't applied to any jobs yet.</p>";
+                    }
+                    
+                    applicationsDiv.innerHTML = html;
+                });
+        }
+        
         function escapeHtml(unsafe) {
             return unsafe
                 .replace(/&/g, "&amp;")
@@ -560,7 +852,8 @@ if ($conn->connect_error) {
         document.getElementById('jobTypeFilter').addEventListener('change', fetchFilteredJobs);
 
         // Initial load
-        fetchFilteredJobs();
+        fetchFilteredJobs(1);
+        fetchApplications(1);
     </script>
 </body>
 </html>
