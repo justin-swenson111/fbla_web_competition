@@ -12,6 +12,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Create uploads/pfps directory if it doesn't exist
+if (!file_exists('uploads/pfps')) {
+    mkdir('uploads/pfps', 0777, true);
+}
+
 // Handle logout
 if (isset($_POST['logout'])) {
     $_SESSION = array();
@@ -32,7 +37,79 @@ if (!$isLoggedIn) {
     exit();
 }
 
-// Handle form submission
+// Handle profile picture upload
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['profile_picture'])) {
+    $target_dir = "uploads/pfps/";
+    $file_extension = strtolower(pathinfo($_FILES["profile_picture"]["name"], PATHINFO_EXTENSION));
+    $new_filename = "pfp_" . $userId . "_" . time() . "." . $file_extension;
+    $target_file = $target_dir . $new_filename;
+    
+    // Check if image file is valid
+    $allowed_types = array('jpg', 'jpeg', 'png', 'gif');
+    if (in_array($file_extension, $allowed_types)) {
+        if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
+            // Update database with new profile picture path
+            $table = ($userType === 'student') ? 'students' : 'employers';
+            $sql = "UPDATE $table SET profile_picture = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("si", $target_file, $userId);
+            
+            if ($stmt->execute()) {
+                $success_message = "Profile picture updated successfully!";
+            } else {
+                $error_message = "Error updating profile picture in database.";
+            }
+            $stmt->close();
+        } else {
+            $error_message = "Sorry, there was an error uploading your file.";
+        }
+    } else {
+        $error_message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+    }
+}
+
+// Handle password change
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['change_password'])) {
+    $current_password = $_POST['current_password'];
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+    
+    // First verify the current password
+    $table = ($userType === 'student') ? 'students' : 'employers';
+    $sql = "SELECT pass FROM $table WHERE id = ?";  // Changed 'password' to 'pass'
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+    
+    if (password_verify($current_password, $user['pass'])) {  // Changed 'password' to 'pass'
+        if ($new_password === $confirm_password) {
+            if (strlen($new_password) >= 8) {  // Minimum password length
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                $sql = "UPDATE $table SET pass = ? WHERE id = ?";  // Changed 'password' to 'pass'
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("si", $hashed_password, $userId);
+                
+                if ($stmt->execute()) {
+                    $success_message = "Password updated successfully!";
+                } else {
+                    $error_message = "Error updating password.";
+                }
+                $stmt->close();
+            } else {
+                $error_message = "New password must be at least 8 characters long.";
+            }
+        } else {
+            $error_message = "New passwords do not match.";
+        }
+    } else {
+        $error_message = "Current password is incorrect.";
+    }
+}
+
+// Handle form submission for other profile updates
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
     $table = ($userType === 'student') ? 'students' : 'employers';
     $updates = [];
@@ -115,13 +192,170 @@ $stmt->close();
     <title>Settings</title>
     <link rel="stylesheet" href="navbar-responsive.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
         }
-        
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 4rem;
+            background-color: rgba(44, 62, 80, 0.9);
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .logo {
+            height: 50px;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.7rem 1.2rem;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        /* Hover and Active States */
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #f57f17;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 3px;
+            background-color: #f57f17;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Profile Link and Picture */
+        .profile-link {
+            padding: 0.5rem !important;
+            margin-left: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.1);
+            border-color: #f57f17;
+        }
+
+        /* Responsive Adjustments */
+        @media screen and (max-width: 1024px) {
+            .navbar {
+                padding: 0.8rem 2rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .nav-links a {
+                padding: 0.6rem 1rem;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar .logo {
+                height: 40px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .nav-links a {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.8rem;
+                text-align: center;
+            }
+
+            .profile-link {
+                margin: 0;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .navbar {
+                padding: 0.8rem 0.5rem;
+            }
+
+            .navbar .logo {
+                height: 35px;
+            }
+
+            .nav-links {
+                gap: 0.3rem;
+            }
+
+            .nav-links a {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.6rem;
+            }
+        }
+
         .settings-container {
             max-width: 800px;
             margin: 100px auto;
@@ -143,6 +377,7 @@ $stmt->close();
 
         .form-group {
             margin-bottom: 20px;
+            max-width: 100%; /* Ensure form group doesn't exceed container */
         }
 
         .form-group label {
@@ -154,13 +389,16 @@ $stmt->close();
 
         .form-group input[type="text"],
         .form-group input[type="url"],
+        .form-group input[type="password"],
         .form-group textarea {
-            width: 100%;
+            width: calc(100% - 24px); /* Subtract padding from width */
+            max-width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
             background-color: white;
+            box-sizing: border-box; /* Include padding in width calculation */
         }
 
         .form-group textarea {
@@ -171,6 +409,7 @@ $stmt->close();
         .form-group input[type="file"] {
             display: block;
             margin-top: 8px;
+            max-width: 100%;
         }
 
         .profile-picture {
@@ -234,10 +473,23 @@ $stmt->close();
         .logout-button:hover {
             background-color: #c82333;
         }
+
+        .password-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .password-requirements {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="navbar">
+    <div class="navbar">    
         <a href="index.php">
             <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
         </a>
@@ -250,10 +502,24 @@ $stmt->close();
                 <?php endif; ?>
                 <?php if ($userType === 'employer'): ?>
                     <a href="employerdash.php">Employer Dashboard</a>
+                    <a href="applicationsrecieved.php">View Applications</a>
                 <?php endif; ?>
                 <a href="settings.php" class="profile-link">
-                    <img src="./media/socialimage2.jpg" alt="Profile" class="profile-pic" />
+                    <img src="<?php 
+                        $table = ($userType === 'student') ? 'students' : 'employers';
+                        $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                        $stmt->bind_param("i", $_SESSION['user_id']);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $profile = $result->fetch_assoc();
+                        $stmt->close();
+                        echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                    ?>" 
+                    alt="Profile" 
+                    class="profile-pic" />
                 </a>
+            <?php else: ?>
+                <a href="loginpage.php">Login</a>
             <?php endif; ?>
         </div>
     </div>
@@ -274,9 +540,10 @@ $stmt->close();
                 <!-- Profile Picture UI (not connected) -->
                 <div class="form-group">
                     <label>Profile Picture</label>
-                    <img src="./media/socialimage2.jpg" alt="Profile Picture" class="profile-picture">
+                    <img src="<?php echo !empty($userData['profile_picture']) ? htmlspecialchars($userData['profile_picture']) : './media/default-image.png'; ?>" alt="Profile Picture" class="profile-picture">
                     <input type="file" name="profile_picture" accept="image/*">
                     <div class="file-info">Accepted formats: JPG, JPEG, PNG, GIF</div>
+                    <button type="submit" name="upload_picture" class="submit-button">Update Profile Picture</button>
                 </div>
 
                 <?php if ($userType === 'student'): ?>
@@ -320,6 +587,31 @@ $stmt->close();
                 <?php endif; ?>
 
                 <button type="submit" name="update_profile" class="submit-button">Save Changes</button>
+            </form>
+
+            <!-- Password Change Form -->
+            <form method="POST" action="" class="password-section">
+                <h2>Change Password</h2>
+                <div class="password-requirements">
+                    Password must be at least 8 characters long
+                </div>
+                
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" name="current_password" id="current_password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" name="new_password" id="new_password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required>
+                </div>
+
+                <button type="submit" name="change_password" class="submit-button">Change Password</button>
             </form>
 
             <form method="POST" action="">

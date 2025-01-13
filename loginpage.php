@@ -9,14 +9,54 @@ $dbname = "fbla";
 // Database connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check if the user is logged in
-$isLoggedIn = isset($_SESSION['fname']);
-$userType = $_SESSION['user_type'] ?? null; // Check user type
-
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+// Handle login functionality
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'], $_POST['password'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $sql = "
+    SELECT id, fname, lname, email, pass, 'student' AS user_type FROM students WHERE email = ? 
+    UNION 
+    SELECT id, fname, lname, email, pass, 'employer' AS user_type FROM employers WHERE email = ?
+    ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $email, $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+
+        if (password_verify($password, $user['pass'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['fname'] = $user['fname'];
+            $_SESSION['user_type'] = $user['user_type'];
+
+            if ($user['user_type'] === 'student') {
+                header("Location: studentdash.php");
+            } else {
+                header("Location: employerdash.php");
+            }
+            exit();
+        } else {
+            $loginError = "Incorrect password!";
+        }
+    } else {
+        $loginError = "No user found with this email.";
+    }
+
+    $stmt->close();
+}
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['fname']);
+$userType = $_SESSION['user_type'] ?? null;
 ?>
 
 <!DOCTYPE html>
@@ -32,84 +72,168 @@ if ($conn->connect_error) {
     <link rel="stylesheet" href="navbar-responsive.css">
 
     <style>
-      /* General Styles */
       * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
       }
 
       body {
-        background-color: #f0f0f0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
+          font-family: Arial, sans-serif;
+          background-color: #f0f0f0;
+          margin: 0;
+          padding: 0;
+          overflow-x: hidden;
       }
 
       /* Navbar */
       .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 50px;
-        background-color: rgba(44, 62, 80, 0.7);
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-        backdrop-filter: blur(10px);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.8rem 4rem;
+          background-color: rgba(44, 62, 80, 0.9);
+          position: sticky;
+          top: 0;
+          width: 100%;
+          z-index: 1000;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
       .navbar .logo {
-        max-height: 50px;
+          height: 50px;
+          width: auto;
+          transition: all 0.3s ease;
       }
 
+      /* Navigation Links */
       .nav-links {
-        display: flex;
-        gap: 30px;
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
       }
 
       .nav-links a {
-        color: white;
-        text-decoration: none;
-        font-size: 16px;
-        font-weight: bold;
-        padding: 10px 15px;
-        position: relative;
-        transition: color 0.3s ease, background-color 0.3s ease;
+          color: white;
+          text-decoration: none;
+          font-size: 1rem;
+          font-weight: 600;
+          padding: 0.7rem 1.2rem;
+          border-radius: 4px;
+          position: relative;
+          transition: all 0.3s ease;
+          white-space: nowrap;
       }
 
-      .nav-links a:hover {
-        background-color: rgba(44, 62, 80, 0.9);
-        color: #f57f17;
-      }
-
-      .nav-links a:hover::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 3px;
-        background-color: #f57f17;
-        transition: width 0.3s ease;
-        width: 100%;
-      }
-
+      /* Hover and Active States */
+      .nav-links a:hover,
       .nav-links a.active {
-        color: #f57f17;
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #f57f17;
+          transform: translateY(-2px);
       }
 
+      .nav-links a::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 0;
+          height: 3px;
+          background-color: #f57f17;
+          transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after,
       .nav-links a.active::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 3px;
-        background-color: #f57f17;
-        width: 100%;
+          width: 100%;
+      }
+
+      /* Profile Link and Picture */
+      .profile-link {
+          padding: 0.5rem !important;
+          margin-left: 0.5rem;
+          display: flex;
+          align-items: center;
+      }
+
+      .profile-pic {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+          border: 2px solid transparent;
+      }
+
+      .profile-pic:hover {
+          transform: scale(1.1);
+          border-color: #f57f17;
+      }
+
+      /* Responsive Adjustments */
+      @media screen and (max-width: 1024px) {
+          .navbar {
+              padding: 0.8rem 2rem;
+          }
+          
+          .nav-links {
+              gap: 1rem;
+          }
+          
+          .nav-links a {
+              padding: 0.6rem 1rem;
+          }
+      }
+
+      @media screen and (max-width: 768px) {
+          .navbar {
+              padding: 1rem;
+              flex-direction: column;
+              gap: 1rem;
+          }
+
+          .navbar .logo {
+              height: 40px;
+          }
+
+          .nav-links {
+              flex-wrap: wrap;
+              justify-content: center;
+              width: 100%;
+              gap: 0.5rem;
+          }
+
+          .nav-links a {
+              font-size: 0.9rem;
+              padding: 0.5rem 0.8rem;
+              text-align: center;
+          }
+
+          .profile-link {
+              margin: 0;
+          }
+      }
+
+      @media screen and (max-width: 480px) {
+          .navbar {
+              padding: 0.8rem 0.5rem;
+          }
+
+          .navbar .logo {
+              height: 35px;
+          }
+
+          .nav-links {
+              gap: 0.3rem;
+          }
+
+          .nav-links a {
+              font-size: 0.85rem;
+              padding: 0.4rem 0.6rem;
+          }
       }
 
       /* Background Section */
@@ -342,130 +466,106 @@ if ($conn->connect_error) {
           padding: 20px;
         }
 
-        /* Ensure proper spacing for fixed navbar */
-        body {
-          padding-top: 200px;
-        }
-
         /* Improve touch targets */
         button,
-        .nav-links a,
         .signup-btn {
           min-height: 44px;
           min-width: 44px;
         }
       }
+
+      .error-msg {
+          color: red;
+          font-weight: bold;
+          margin-top: 10px;
+      }
     </style>
   </head>
   <body>
-    <div class="navbar">
-    <!-- Logo -->
-    <a href="index.php">
-        <img
-            src="./media/logo.png"
-            alt="Logo"
-            class="logo"
-            height="200px"
-            width="auto"
-        />
-    </a>
-
-    <!-- Navigation Links -->
-    <div class="nav-links">
-        <a href="aboutUs.php">About Us</a>
-        <a href="resources.php">Resources</a>
-
-        <!-- Display Login Link if Not Logged In -->
-        <?php if (!$isLoggedIn): ?>
-            <a href="./loginpage.php">Login</a>
-        <?php endif; ?>
-
-        <!-- Display Links for Logged-In Users -->
-        <?php if ($isLoggedIn): ?>
-            <!-- Show Student Dashboard if user is a student -->
-            <?php if ($userType === 'student'): ?>
-                <a href="studentdash.php">Student Dashboard</a>
+  <div class="navbar">
+        <a href="index.php">
+            <img src="./media/logo.png" alt="Logo" class="logo" />
+        </a>
+        <div class="nav-links">
+            <a href="aboutUs.php">About Us</a>
+            <a href="resources.php">Resources</a>
+            <?php if ($isLoggedIn): ?>
+                <?php if ($userType === 'student'): ?>
+                    <a href="studentdash.php">Student Dashboard</a>
+                <?php endif; ?>
+                <?php if ($userType === 'employer'): ?>
+                    <a href="employerdash.php">Employer Dashboard</a>
+                    <a href="applicationsrecieved.php">View Applications</a>
+                <?php endif; ?>
+                <a href="settings.php" class="profile-link">
+                    <img src="<?php 
+                        $table = ($userType === 'student') ? 'students' : 'employers';
+                        $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                        $stmt->bind_param("i", $_SESSION['user_id']);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $profile = $result->fetch_assoc();
+                        $stmt->close();
+                        echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                    ?>" 
+                    alt="Profile" 
+                    class="profile-pic" />
+                </a>
+            <?php else: ?>
+                <a href="loginpage.php">Login</a>
             <?php endif; ?>
-
-            <!-- Show Teacher Dashboard if user is a teacher -->
-            <?php if ($userType === 'employer'): ?>
-                <a href="employerdash.php">Teacher Dashboard</a>
-            <?php endif; ?>
-
-            <!-- Profile/Settings Link -->
-            <a href="settings.php" class="profile-link">
-                <img
-                    src="./media/socialimage2.jpg"
-                    alt="Profile"
-                    class="profile-pic"
-                />
-            </a>
-        <?php endif; ?>
-    </div>
-  </div>
-
-    <!-- Background Section -->
-    <div class="background">
-      <div class="signup-container">
-        <h1>Login</h1>
-        <form
-          id="login-form"
-          class="signup-form"
-          action="login.php"
-          method="POST"
-        >
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required />
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required />
-          </div>
-          <button type="submit" class="signup-btn">Login</button>
-        </form>
-
-        <div class="bottom-links">
-          <a href="loginpage.php" class="login">Forgot Password?</a>
-          <a href="studentsignup.php" class="student-signup">Sign Up</a>
         </div>
-      </div>
+    </div>
+
+    <div class="background">
+        <div class="signup-container">
+            <h1>Login</h1>
+            <form id="login-form" class="signup-form" action="" method="POST">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required />
+                </div>
+                <button type="submit" class="signup-btn">Login</button>
+                <?php if (isset($loginError)): ?>
+                    <p class="error-msg"><?php echo $loginError; ?></p>
+                <?php endif; ?>
+            </form>
+
+            <div class="bottom-links">
+                <a href="forgotpassword.php" class="login">Forgot Password?</a>
+                <a href="studentsignup.php" class="student-signup">Sign Up</a>
+            </div>
+        </div>
     </div>
 
     <footer class="footer" id="footer">
-      <div class="footer-content">
-        <div class="contact-info">
-          <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
-          <p>
-            P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025
-            &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org
-          </p>
+        <div class="footer-content">
+            <div class="contact-info">
+                <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
+                <p>
+                    P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025
+                    &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org
+                </p>
+            </div>
+            <div class="social-media-icons">
+                <a href="#" class="social-button"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="#" class="social-button"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+            <div class="footer-note">
+                <p>
+                    West-MEC strives to provide web content that is accessible to all.
+                    If you are unable to access any content, please contact
+                    info@west-mec.org.
+                </p>
+            </div>
         </div>
-        <div class="social-media-icons">
-          <a href="#" class="social-button"
-            ><i class="fa-brands fa-facebook"></i
-          ></a>
-          <a href="#" class="social-button"
-            ><i class="fa-brands fa-twitter"></i
-          ></a>
-          <a href="#" class="social-button"
-            ><i class="fa-brands fa-instagram"></i
-          ></a>
-          <a href="#" class="social-button"
-            ><i class="fa-brands fa-linkedin"></i
-          ></a>
-          <a href="#" class="social-button"
-            ><i class="fa-brands fa-youtube"></i
-          ></a>
-        </div>
-        <div class="footer-note">
-          <p>
-            West-MEC strives to provide web content that is accessible to all.
-            If you are unable to access any content, please contact
-            info@west-mec.org.
-          </p>
-        </div>
-      </div>
     </footer>
   </body>
 </html>

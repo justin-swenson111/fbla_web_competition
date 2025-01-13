@@ -1,12 +1,13 @@
 <?php
 session_start();
 
+// Database connection details
 $servername = "localhost";
 $username = "root";
 $password = ""; // Default password for XAMPP is empty
 $dbname = "fbla";
 
-// Database connection
+// Establish a connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check if the user is logged in
@@ -16,6 +17,74 @@ $userType = $_SESSION['user_type'] ?? null; // Check user type from session
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
+}
+
+// Initialize error messages array
+$errors = [];
+
+// Check if the form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Check if all required form data is set
+    if (isset($_POST['fname'], $_POST['lname'], $_POST['email'], $_POST['password'], $_POST['user_type'])) {
+        // Get form data
+        $first_name = $conn->real_escape_string($_POST['fname']);
+        $last_name = $conn->real_escape_string($_POST['lname']);
+        $email = $conn->real_escape_string($_POST['email']);
+        $password = $_POST['password'];
+        $user_type = $conn->real_escape_string($_POST['user_type']);
+
+        // Check if passwords match
+        if (!isset($_POST['repeat-password']) || $_POST['password'] !== $_POST['repeat-password']) {
+            $errors[] = "Passwords do not match.";
+        }
+
+        // Check if the email already exists in either the students or employers table
+        $check_email_sql = "SELECT id FROM students WHERE email = ? UNION SELECT id FROM employers WHERE email = ?";
+        $check_email_stmt = $conn->prepare($check_email_sql);
+        $check_email_stmt->bind_param("ss", $email, $email);
+        $check_email_stmt->execute();
+        $check_email_stmt->store_result();
+
+        if ($check_email_stmt->num_rows > 0) {
+            $errors[] = "The email address is already taken. Please use a different email.";
+        }
+
+        // Hash the password for security
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Handle based on user type
+        if ($user_type === "student") {
+            // Insert into Students table
+            $sql = "INSERT INTO students (fname, lname, email, pass, user_type) VALUES (?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssss", $first_name, $last_name, $email, $hashed_password, $user_type);
+        } elseif ($user_type === "employer") {
+            // Check if company_name is set for employers
+            if (isset($_POST['company_name'])) {
+                $company_name = $conn->real_escape_string($_POST['company_name']);
+
+                // Insert into Employers table
+                $sql = "INSERT INTO employers (fname, lname, email, pass, company_name, user_type) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ssssss", $first_name, $last_name, $email, $hashed_password, $company_name, $user_type);
+            } else {
+                $errors[] = "Company name is required for employer registration.";
+            }
+        } else {
+            $errors[] = "Invalid user type specified.";
+        }
+
+        // Execute the query if there are no errors
+        if (empty($errors) && $stmt->execute()) {
+            // Redirect to success page or login page
+            header("Location: loginpage.php");
+            exit();
+        }
+        // Close the statement
+        $stmt->close();
+    } else {
+        $errors[] = "Required form data missing.";
+    }
 }
 ?>
 
@@ -29,20 +98,22 @@ if ($conn->connect_error) {
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <link rel="stylesheet" href="navbar-responsive.css">
+
     <style>
-        /* General Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         body {
+            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
         /* Navbar */
@@ -50,64 +121,148 @@ if ($conn->connect_error) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 50px;
-            background-color: rgba(44, 62, 80, 0.7);
-            position: fixed;
+            padding: 0.8rem 4rem;
+            background-color: rgba(44, 62, 80, 0.9);
+            position: sticky;
             top: 0;
             width: 100%;
             z-index: 1000;
             backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .navbar .logo {
-            max-height: 50px;
+            height: 50px;
+            width: auto;
+            transition: all 0.3s ease;
         }
 
+        /* Navigation Links */
         .nav-links {
             display: flex;
-            gap: 30px;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .nav-links a {
             color: white;
             text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 10px 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.7rem 1.2rem;
+            border-radius: 4px;
             position: relative;
-            transition: color 0.3s ease, background-color 0.3s ease;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        .nav-links a:hover {
-            background-color: rgba(44, 62, 80, 0.9);
+        /* Hover and Active States */
+        .nav-links a:hover,
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
             color: #f57f17;
+            transform: translateY(-2px);
         }
 
-        .nav-links a:hover::after {
+        .nav-links a::after {
             content: "";
             position: absolute;
             left: 0;
-            right: 0;
             bottom: 0;
+            width: 0;
             height: 3px;
             background-color: #f57f17;
             transition: width 0.3s ease;
-            width: 100%;
         }
 
-        .nav-links a.active {
-            color: #f57f17;
-        }
-
+        .nav-links a:hover::after,
         .nav-links a.active::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 3px;
-            background-color: #f57f17;
             width: 100%;
+        }
+
+        /* Profile Link and Picture */
+        .profile-link {
+            padding: 0.5rem !important;
+            margin-left: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.1);
+            border-color: #f57f17;
+        }
+
+        /* Responsive Adjustments */
+        @media screen and (max-width: 1024px) {
+            .navbar {
+                padding: 0.8rem 2rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .nav-links a {
+                padding: 0.6rem 1rem;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar .logo {
+                height: 40px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .nav-links a {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.8rem;
+                text-align: center;
+            }
+
+            .profile-link {
+                margin: 0;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .navbar {
+                padding: 0.8rem 0.5rem;
+            }
+
+            .navbar .logo {
+                height: 35px;
+            }
+
+            .nav-links {
+                gap: 0.3rem;
+            }
+
+            .nav-links a {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.6rem;
+            }
         }
 
         /* Background Section */
@@ -256,82 +411,84 @@ if ($conn->connect_error) {
     </style>
 </head>
 <body>
-    <div class="navbar">
-      <!-- Logo -->
-      <a href="index.php">
-          <img
-              src="./media/logo.png"
-              alt="Logo"
-              class="logo"
-              height="200px"
-              width="auto"
-          />
-      </a>
-
-      <!-- Navigation Links -->
-      <div class="nav-links">
-          <a href="aboutUs.php">About Us</a>
-          <a href="resources.php">Resources</a>
-
-          <!-- Display Login Link if Not Logged In -->
-          <?php if (!$isLoggedIn): ?>
-              <a href="./loginpage.php">Login</a>
-          <?php endif; ?>
-
-          <!-- Display Links for Logged-In Users -->
-          <?php if ($isLoggedIn): ?>
-              <!-- Show Student Dashboard if user is a student -->
-              <?php if ($_SESSION['user_type'] === 'student'): ?>
-                  <a href="studentdash.php">Student Dashboard</a>
-              <?php endif; ?>
-
-              <!-- Show Employer Dashboard if user is an employer -->
-              <?php if ($_SESSION['user_type'] === 'employer'): ?>
-                  <a href="employerdash.php">Employer Dashboard</a>
-              <?php endif; ?>
-
-              <!-- Profile/Settings Link -->
-              <a href="settings.php" class="profile-link">
-                  <img
-                      src="./media/socialimage2.jpg"
-                      alt="Profile"
-                      class="profile-pic"
-                  />
-              </a>
-          <?php endif; ?>
-      </div>
+    <div class="navbar">    
+        <a href="index.php">
+            <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
+        </a>
+        <div class="nav-links">
+            <a href="aboutUs.php">About Us</a>
+            <a href="resources.php">Resources</a>
+            <?php if ($isLoggedIn): ?>
+                <?php if ($userType === 'student'): ?>
+                    <a href="studentdash.php">Student Dashboard</a>
+                <?php endif; ?>
+                <?php if ($userType === 'employer'): ?>
+                    <a href="employerdash.php">Employer Dashboard</a>
+                    <a href="applicationsrecieved.php">View Applications</a>
+                <?php endif; ?>
+                <a href="settings.php" class="profile-link">
+                    <img src="<?php 
+                        $table = ($userType === 'student') ? 'students' : 'employers';
+                        $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                        $stmt->bind_param("i", $_SESSION['user_id']);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $profile = $result->fetch_assoc();
+                        $stmt->close();
+                        echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                    ?>" 
+                    alt="Profile" 
+                    class="profile-pic" />
+                </a>
+            <?php else: ?>
+                <a href="loginpage.php">Login</a>
+            <?php endif; ?>
+        </div>
     </div>
 
     <!-- Background Section -->
     <div class="background">
         <div class="signup-container">
             <h1>Student Sign Up</h1>
+            
+            
+
             <!-- Updated form -->
-            <form id="signup-form" class="signup-form" method="POST" action="signup.php" onsubmit="return validatePasswords()">
+            <form id="signup-form" class="signup-form" method="POST" action="" onsubmit="return validatePasswords()">
                 <div class="name-row">
                     <div class="form-group">
                         <label for="first-name">First Name</label>
-                        <input type="text" id="first-name" name="fname" required>
+                        <input type="text" id="first-name" name="fname" placeholder="Enter your first name" required>
                     </div>
                     <div class="form-group">
                         <label for="last-name">Last Name</label>
-                        <input type="text" id="last-name" name="lname" required>
+                        <input type="text" id="last-name" name="lname" placeholder="Enter your last name" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <small style="color: grey; font-size: 12px;">Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one number.</small>
                 </div>
                 <div class="form-group">
                     <label for="repeat-password">Repeat Password</label>
-                    <input type="password" id="repeat-password" name="repeat-password" required>
+                    <input type="password" id="repeat-password" name="repeat-password" placeholder="Repeat your password" required>
                 </div>
                 <input type="hidden" name="user_type" value="student"> <!-- Hidden input for user type -->
-                <p id="error-message" style="color: red; font-size: 14px; display: none;">Passwords do not match!</p>
+
+                <!-- Display errors if any -->
+                <?php if (!empty($errors)): ?>
+                    <div class="error-messages" style="color: red; font-size: 14px; margin-bottom: 20px;">
+                        <?php foreach ($errors as $error): ?>
+                            <p><?php echo htmlspecialchars($error); ?></p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                
                 <button type="submit" class="signup-btn">Sign Up</button>
             </form>
             <div class="bottom-links">
@@ -361,5 +518,4 @@ if ($conn->connect_error) {
         }
     </script>
 </body>
-
 </html>

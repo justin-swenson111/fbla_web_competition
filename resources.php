@@ -33,86 +33,172 @@ if ($conn->connect_error) {
 
     <style>
       * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial;
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: Arial, Helvetica, sans-serif;
       }
 
       body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
+          font-family: Arial, sans-serif;
+          background-color: #f0f0f0;
+          margin: 0;
+          padding: 0;
+          overflow-x: hidden;
+      }
+
+      /* Navbar */
+      .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.8rem 4rem;
+          background-color: rgba(44, 62, 80, 0.9);
+          position: sticky;
+          top: 0;
+          width: 100%;
+          z-index: 1000;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar .logo {
+          height: 50px;
+          width: auto;
+          transition: all 0.3s ease;
+      }
+
+      /* Navigation Links */
+      .nav-links {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+      }
+
+      .nav-links a {
+          color: white;
+          text-decoration: none;
+          font-size: 1rem;
+          font-weight: 600;
+          padding: 0.7rem 1.2rem;
+          border-radius: 4px;
+          position: relative;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+      }
+
+      /* Hover and Active States */
+      .nav-links a:hover,
+      .nav-links a.active {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: #f57f17;
+          transform: translateY(-2px);
+      }
+
+      .nav-links a::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 0;
+          height: 3px;
+          background-color: #f57f17;
+          transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after,
+      .nav-links a.active::after {
+          width: 100%;
+      }
+
+      /* Profile Link and Picture */
+      .profile-link {
+          padding: 0.5rem !important;
+          margin-left: 0.5rem;
+          display: flex;
+          align-items: center;
+      }
+
+      .profile-pic {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+          border: 2px solid transparent;
+      }
+
+      .profile-pic:hover {
+          transform: scale(1.1);
+          border-color: #f57f17;
+      }
+
+      /* Responsive Adjustments */
+      @media screen and (max-width: 1024px) {
+          .navbar {
+              padding: 0.8rem 2rem;
+          }
+          
+          .nav-links {
+              gap: 1rem;
+          }
+          
+          .nav-links a {
+              padding: 0.6rem 1rem;
+          }
+      }
+
+      @media screen and (max-width: 768px) {
+          .navbar {
+              padding: 1rem;
+              flex-direction: column;
+              gap: 1rem;
+          }
+
+          .navbar .logo {
+              height: 40px;
+          }
+
+          .nav-links {
+              flex-wrap: wrap;
+              justify-content: center;
+              width: 100%;
+              gap: 0.5rem;
+          }
+
+          .nav-links a {
+              font-size: 0.9rem;
+              padding: 0.5rem 0.8rem;
+              text-align: center;
+          }
+
+          .profile-link {
+              margin: 0;
+          }
+      }
+
+      @media screen and (max-width: 480px) {
+          .navbar {
+              padding: 0.8rem 0.5rem;
+          }
+
+          .navbar .logo {
+              height: 35px;
+          }
+
+          .nav-links {
+              gap: 0.3rem;
+          }
+
+          .nav-links a {
+              font-size: 0.85rem;
+              padding: 0.4rem 0.6rem;
+          }
       }
 
       .mainpart {
         margin-right: 100px;
         margin-left: 100px;
-      }
-
-      /* Navbar */
-      /* Navbar */
-      .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 50px;
-        background-color: rgba(44, 62, 80, 0.7);
-        position: sticky;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-        backdrop-filter: blur(10px);
-      }
-
-      .navbar .logo {
-        max-height: 50px;
-      }
-
-      .nav-links {
-        display: flex;
-        gap: 30px;
-      }
-
-      .nav-links a {
-        color: white;
-        text-decoration: none;
-        font-size: 16px;
-        font-weight: bold;
-        padding: 10px 15px;
-        position: relative;
-        transition: color 0.3s ease, background-color 0.3s ease;
-      }
-
-      .nav-links a:hover {
-        background-color: rgba(44, 62, 80, 0.9);
-        color: #f57f17;
-      }
-
-      .nav-links a:hover::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 3px;
-        background-color: #f57f17;
-        transition: width 0.3s ease;
-        width: 100%;
-      }
-
-      .nav-links a.active {
-        color: #f57f17;
-      }
-
-      .nav-links a.active::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 3px;
-        background-color: #f57f17;
-        width: 100%;
       }
 
       /* Main */
@@ -259,56 +345,40 @@ if ($conn->connect_error) {
     </style>
   </head>
   <body>
-    <div class="navbar">
-      <!-- Logo -->
+    <div class="navbar">    
       <a href="index.php">
-          <img
-              src="./media/logo.png"
-              alt="Logo"
-              class="logo"
-              height="200px"
-              width="auto"
-          />
+          <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
       </a>
-
-      <!-- Navigation Links -->
       <div class="nav-links">
           <a href="aboutUs.php">About Us</a>
           <a href="resources.php">Resources</a>
-
-          <!-- Display Login Link if Not Logged In -->
-          <?php if (!$isLoggedIn): ?>
-              <a href="./loginpage.php">Login</a>
-          <?php endif; ?>
-
-          <!-- Display Links for Logged-In Users -->
           <?php if ($isLoggedIn): ?>
-              <!-- Show Student Dashboard if user is a student -->
-              <?php if ($_SESSION['user_type'] === 'student'): ?>
+              <?php if ($userType === 'student'): ?>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
-
-              <!-- Show Employer Dashboard if user is an employer -->
-              <?php if ($_SESSION['user_type'] === 'employer'): ?>
+              <?php if ($userType === 'employer'): ?>
                   <a href="employerdash.php">Employer Dashboard</a>
+                  <a href="applicationsrecieved.php">View Applications</a>
               <?php endif; ?>
-
-              <!-- Profile/Settings Link -->
               <a href="settings.php" class="profile-link">
-                  <img
-                      src="./media/socialimage2.jpg"
-                      alt="Profile"
-                      class="profile-pic"
-                  />
+                  <img src="<?php 
+                      $table = ($userType === 'student') ? 'students' : 'employers';
+                      $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                      $stmt->bind_param("i", $_SESSION['user_id']);
+                      $stmt->execute();
+                      $result = $stmt->get_result();
+                      $profile = $result->fetch_assoc();
+                      $stmt->close();
+                      echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                  ?>" 
+                  alt="Profile" 
+                  class="profile-pic" />
               </a>
+          <?php else: ?>
+              <a href="loginpage.php">Login</a>
           <?php endif; ?>
       </div>
     </div>
-
-    <br />
-    <br />
-    <br />
-    <br />
 
     <div class="mainpart">
       <div class="heading-main">

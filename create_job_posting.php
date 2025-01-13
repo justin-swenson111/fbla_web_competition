@@ -33,14 +33,29 @@ $authorized_company = $employer_info['company_name'];
 $stmt->close();
 
 // Handle job posting
-if (isset($_POST['title'], $_POST['description'], $_POST['requirements'], $_POST['salary'], $_POST['location'], $_POST['job_type'], $_POST['application_deadline'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Check if all required fields are present
+    $required_fields = ['title', 'description', 'requirements', 'salary', 'location', 'job_type', 'deadline'];
+    $missing_fields = [];
+    
+    foreach ($required_fields as $field) {
+        if (!isset($_POST[$field]) || empty($_POST[$field])) {
+            $missing_fields[] = $field;
+        }
+    }
+    
+    if (!empty($missing_fields)) {
+        echo "Missing required fields: " . implode(", ", $missing_fields);
+        exit;
+    }
+
     $title = $_POST['title'];
     $description = $_POST['description'];
     $requirements = $_POST['requirements'];
     $salary = $_POST['salary'];
     $location = $_POST['location'];
     $job_type = $_POST['job_type'];
-    $application_deadline = $_POST['application_deadline'];
+    $application_deadline = $_POST['deadline'];  // Match the form field name
 
     // Insert the job posting into the database
     $sql = "INSERT INTO job_postings (
@@ -77,7 +92,7 @@ if (isset($_POST['title'], $_POST['description'], $_POST['requirements'], $_POST
 
     $stmt->close();
 } else {
-    echo "All fields are required.";
+    echo "Invalid request method.";
 }
 
 $conn->close();
