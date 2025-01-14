@@ -266,6 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* Background Section */
+        /* Background Section */
         .background {
             flex-grow: 1; /* Takes up space between nav and footer */
             display: flex;
@@ -300,11 +301,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .signup-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-        }
-
-        .name-row {
-            display: flex;
             gap: 15px;
         }
 
@@ -355,7 +351,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-
         }
 
         .bottom-links a {
@@ -370,43 +365,148 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* Footer */
-      .footer {
-        background-color: #1a2b4a;
-        padding: 15px;
-        text-align: center;
-        color: white;
-        font-family: Arial, sans-serif;
-        width: 100%;
-      }
+        .footer {
+            background-color: #1a2b4a;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            width: 100%;
+        }
 
-      .footer-content {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-      .contact-info p {
-        margin: 5px 0;
-        font-size: 16px;
-      }
+        .contact-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
 
-      .social-media-icons {
-        margin: 20px 0;
-      }
+        .social-media-icons {
+            margin: 20px 0;
+        }
 
-      .social-media-icons a {
-        margin: 0 10px;
-        display: inline-block;
-      }
+        .social-media-icons a {
+            margin: 0 10px;
+            display: inline-block;
+        }
 
-      .social-media-icons img {
-        width: 24px;
-        height: 24px;
-      }
+        .social-media-icons img {
+            width: 24px;
+            height: 24px;
+        }
 
-      .footer-note p {
-        font-size: 14px;
-        margin-top: 20px;
-      }
+        .footer-note p {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* Tablet and Mobile Responsiveness */
+        @media screen and (max-width: 768px) {
+            /* Signup container adjustments */
+            .signup-container {
+                width: 90%;
+                margin: 120px auto 40px; /* Increased top margin to account for navbar */
+                padding: 20px;
+            }
+
+            .signup-container h1 {
+                font-size: 24px;
+            }
+
+            /* Form adjustments */
+            .form-group input {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            /* Bottom links adjustments */
+            .bottom-links {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+                text-align: center;
+            }
+
+            /* Footer adjustments */
+            .footer {
+                padding: 10px;
+            }
+
+            .contact-info p {
+                font-size: 14px;
+            }
+
+            .social-media-icons {
+                margin: 15px 0;
+            }
+
+            .footer-note p {
+                font-size: 12px;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media screen and (max-width: 480px) {
+            /* Signup container adjustments */
+            .signup-container {
+                width: 95%;
+                margin: 100px auto 20px;
+                padding: 15px;
+            }
+
+            .signup-container h1 {
+                font-size: 20px;
+            }
+
+            /* Form adjustments */
+            .form-group label {
+                font-size: 14px;
+            }
+
+            .form-group input {
+                font-size: 13px;
+                padding: 6px;
+            }
+
+            .signup-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            /* Footer adjustments */
+            .social-media-icons a {
+                margin: 0 5px;
+            }
+
+            .social-media-icons img {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        /* Additional improvements */
+        @media screen and (max-width: 768px) {
+            /* Background section adjustment */
+            .background {
+                padding: 20px;
+            }
+
+            /* Improve touch targets */
+            button,
+            .signup-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+
+        .error-msg {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
 
     </style>
 </head>

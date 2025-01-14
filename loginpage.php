@@ -319,7 +319,7 @@ $userType = $_SESSION['user_type'] ?? null;
       .bottom-links {
         margin-top: 20px;
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         font-size: 14px;
       }
 
@@ -536,7 +536,6 @@ $userType = $_SESSION['user_type'] ?? null;
             </form>
 
             <div class="bottom-links">
-                <a href="forgotpassword.php" class="login">Forgot Password?</a>
                 <a href="studentsignup.php" class="student-signup">Sign Up</a>
             </div>
         </div>

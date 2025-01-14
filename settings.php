@@ -536,8 +536,8 @@ $stmt->close();
         <?php endif; ?>
 
         <div class="settings-section">
-            <form method="POST" action="" enctype="multipart/form-data">
-                <!-- Profile Picture UI (not connected) -->
+            <!-- Separate Profile Picture Form -->
+            <form method="POST" action="" enctype="multipart/form-data" class="profile-picture-form">
                 <div class="form-group">
                     <label>Profile Picture</label>
                     <img src="<?php echo !empty($userData['profile_picture']) ? htmlspecialchars($userData['profile_picture']) : './media/default-image.png'; ?>" alt="Profile Picture" class="profile-picture">
@@ -545,7 +545,10 @@ $stmt->close();
                     <div class="file-info">Accepted formats: JPG, JPEG, PNG, GIF</div>
                     <button type="submit" name="upload_picture" class="submit-button">Update Profile Picture</button>
                 </div>
+            </form>
 
+            <!-- Separate Profile Information Form -->
+            <form method="POST" action="" class="profile-info-form">
                 <?php if ($userType === 'student'): ?>
                     <!-- Student Fields -->
                     <div class="form-group">

@@ -44,6 +44,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
     exit();
 }
 
+// Handle application deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete' && isset($_POST['application_id'])) {
+    $application_id = $conn->real_escape_string($_POST['application_id']);
+    
+    $delete_query = "DELETE FROM job_applications 
+                     WHERE id = '$application_id' 
+                     AND employer_id = '$employer_id'";
+    
+    $conn->query($delete_query);
+    exit();
+}
+
 // Modified query to group applications by job posting
 $query = "SELECT 
             ja.id as application_id,
@@ -352,7 +364,7 @@ while ($row = $result->fetch_assoc()) {
                 <div class="table-responsive">
                     <table class="table table-striped mb-0">
                         <thead>
-                            <tr>
+                            <tr data-application-id="<?php echo $application['application_id']; ?>">
                                 <th>Applicant</th>
                                 <th>Skills & Experience</th>
                                 <th>Applied Date</th>
@@ -363,7 +375,7 @@ while ($row = $result->fetch_assoc()) {
                         </thead>
                         <tbody>
                             <?php foreach ($job_data['applications'] as $application): ?>
-                            <tr>
+                            <tr data-application-id="<?php echo $application['application_id']; ?>">
                                 <td>
                                     <?php if($application['profile_picture']): ?>
                                         <img src="<?php echo htmlspecialchars($application['profile_picture']); ?>" 
@@ -407,17 +419,23 @@ while ($row = $result->fetch_assoc()) {
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                <form onsubmit="event.preventDefault(); updateApplicationStatus(this);" class="d-inline">
-                                    <input type="hidden" name="application_id" value="<?php echo $application['application_id']; ?>">
-                                    <select name="status" class="form-select form-select-sm mb-2" required>
-                                        <option value="">Update Status</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Reviewed">Reviewed</option>
-                                        <option value="Accepted">Accepted</option>
-                                        <option value="Rejected">Rejected</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
-                                </form>
+                                    <form onsubmit="event.preventDefault(); updateApplicationStatus(this);" class="d-inline">
+                                        <input type="hidden" name="application_id" value="<?php echo $application['application_id']; ?>">
+                                        <select name="status" class="form-select form-select-sm mb-2" required>
+                                            <option value="">Update Status</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Reviewed">Reviewed</option>
+                                            <option value="Accepted">Accepted</option>
+                                            <option value="Rejected">Rejected</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                    </form>
+                                    <!-- Add this button -->
+                                    <button 
+                                        onclick="deleteApplication(<?php echo $application['application_id']; ?>)" 
+                                        class="btn btn-sm btn-danger ms-2">
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
 
@@ -452,6 +470,53 @@ while ($row = $result->fetch_assoc()) {
         function toggleApplications(jobId) {
             const container = document.getElementById(jobId);
             container.classList.toggle('show');
+        }
+
+        function deleteApplication(applicationId) {
+            if (confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+                fetch('', {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        action: 'delete',
+                        application_id: applicationId
+                    }),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => response.text())
+                .then(data => {
+                    // Find the row and its parent job section
+                    const row = document.querySelector(`tr[data-application-id="${applicationId}"]`);
+                    if (row) {
+                        const jobSection = row.closest('.job-section');
+                        const applicationsContainer = row.closest('.applications-container');
+                        const tbody = row.closest('tbody');
+                        
+                        // Remove the row
+                        row.remove();
+                        
+                        // Update the count in the header
+                        if (jobSection) {
+                            const countElement = jobSection.querySelector('.application-count');
+                            const remainingRows = tbody.querySelectorAll('tr').length;
+                            
+                            if (remainingRows === 0) {
+                                // If this was the last application, remove the entire job section
+                                jobSection.remove();
+                            } else {
+                                // Otherwise, update the count
+                                countElement.textContent = `${remainingRows} Application${remainingRows === 1 ? '' : 's'}`;
+                            }
+                        }
+                    }
+                    showAlert('Application deleted successfully!', 'success');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('An error occurred while deleting the application.', 'danger');
+                });
+            }
         }
 
         function updateApplicationStatus(form) {
@@ -516,7 +581,7 @@ while ($row = $result->fetch_assoc()) {
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
-            alertDiv.style.zIndex = '1050';
+            alertDiv.style.zIndex = alertZIndex++;
             alertDiv.innerHTML = `
                 ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
