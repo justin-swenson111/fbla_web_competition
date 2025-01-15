@@ -25,12 +25,12 @@ if ($conn->connect_error) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>West-MEC NECareers</title>
+    <link rel="shortcut icon" href="./media/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
-    <link rel="shortcut icon" href="./media/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="navbar-responsive.css" />
 
     <style>
@@ -701,7 +701,7 @@ if ($conn->connect_error) {
                     <a href="studentdash.php">Student Dashboard</a>
                 <?php endif; ?>
                 <?php if ($userType === 'employer'): ?>
-                    <a href="employerdash.php">Employer Dashboard</a>
+                    <a href="employerdash.php">Job Postings</a>
                     <a href="applicationsrecieved.php">View Applications</a>
                 <?php endif; ?>
                 <a href="settings.php" class="profile-link">

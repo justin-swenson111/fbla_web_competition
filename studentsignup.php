@@ -93,7 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup Page</title>
+    <title>Student Signup</title>
+    <link rel="shortcut icon" href="./media/favicon.ico" type="image/x-icon" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
@@ -523,7 +524,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a href="studentdash.php">Student Dashboard</a>
                 <?php endif; ?>
                 <?php if ($userType === 'employer'): ?>
-                    <a href="employerdash.php">Employer Dashboard</a>
+                    <a href="employerdash.php">Job Postings</a>
                     <a href="applicationsrecieved.php">View Applications</a>
                 <?php endif; ?>
                 <a href="settings.php" class="profile-link">
@@ -598,8 +599,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>    
 
-    <footer class="footer" id="footer">
-        <!-- Footer content remains unchanged -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="contact-info">
+          <p>5487 N. 99th Ave, Glendale, AZ 85305</p>
+          <p>
+            P: 623.738.0022 &nbsp;&nbsp;|&nbsp;&nbsp; F: 623.738.0025
+            &nbsp;&nbsp;|&nbsp;&nbsp; info@west-mec.org
+          </p>
+        </div>
+        <div class="social-media-icons">
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-facebook"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-twitter"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-instagram"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-linkedin"></i
+          ></a>
+          <a href="#" class="social-button"
+            ><i class="fa-brands fa-youtube"></i
+          ></a>
+        </div>
+        <div class="footer-note">
+          <p>
+            West-MEC strives to provide web content that is accessible to all.
+            If you are unable to access any content, please contact
+            info@west-mec.org.
+          </p>
+        </div>
+      </div>
     </footer>
 
     <script>
