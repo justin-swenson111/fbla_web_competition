@@ -3,7 +3,7 @@ session_start();
 
 $servername = "localhost";
 $username = "root";
-$password = ""; // Default password for XAMPP is empty
+$password = "mysql"; // Default password for XAMPP is empty
 $dbname = "fbla";
 
 // Database connection
