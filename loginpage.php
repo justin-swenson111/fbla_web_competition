@@ -484,21 +484,21 @@ $userType = $_SESSION['user_type'] ?? null;
   </head>
   <body>
   <div class="navbar">
-        <a href="index.php">
+        <a href="./index.php">
             <img src="./media/logo.png" alt="Logo" class="logo" />
         </a>
         <div class="nav-links">
-            <a href="aboutUs.php">About Us</a>
-            <a href="resources.php">Resources</a>
+            <a href="./aboutUs.php">About Us</a>
+            <a href="./resources.php">Resources</a>
             <?php if ($isLoggedIn): ?>
                 <?php if ($userType === 'student'): ?>
-                    <a href="studentdash.php">Student Dashboard</a>
+                    <a href="./studentdash.php">Student Dashboard</a>
                 <?php endif; ?>
                 <?php if ($userType === 'employer'): ?>
-                    <a href="employerdash.php">Job Postings</a>
-                    <a href="applicationsrecieved.php">View Applications</a>
+                    <a href="./employerdash.php">Job Postings</a>
+                    <a href="./applicationsrecieved.php">View Applications</a>
                 <?php endif; ?>
-                <a href="settings.php" class="profile-link">
+                <a href="./settings.php" class="profile-link">
                     <img src="<?php 
                         $table = ($userType === 'student') ? 'students' : 'employers';
                         $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
@@ -513,7 +513,7 @@ $userType = $_SESSION['user_type'] ?? null;
                     class="profile-pic" />
                 </a>
             <?php else: ?>
-                <a href="loginpage.php">Login</a>
+                <a href="./loginpage.php">Login</a>
             <?php endif; ?>
         </div>
     </div>
@@ -537,7 +537,7 @@ $userType = $_SESSION['user_type'] ?? null;
             </form>
 
             <div class="bottom-links">
-                <a href="studentsignup.php" class="student-signup">Sign Up</a>
+                <a href="./studentsignup.php" class="student-signup">Sign Up</a>
             </div>
         </div>
     </div>
