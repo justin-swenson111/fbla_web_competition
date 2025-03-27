@@ -539,15 +539,19 @@ if ($conn->connect_error) {
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
-                  <a href="./studentdash.php">Student Dashboard</a>
+                  <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>
                   <a href="./employerdash.php">Job Postings</a>
                   <a href="./applicationsrecieved.php">View Applications</a>
               <?php endif; ?>
+              <?php if ($userType === 'admin'): ?>
+                  <a href="./admindash.php">Admin Dashboard</a>
+              <?php endif; ?>
               <a href="./settings.php" class="profile-link">
                   <img src="<?php 
-                      $table = ($userType === 'student') ? 'students' : 'employers';
+                      $table = ($userType === 'student') ? 'students' : 
+                              (($userType === 'employer') ? 'employers' : 'admins');
                       $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
                       $stmt->bind_param("i", $_SESSION['user_id']);
                       $stmt->execute();

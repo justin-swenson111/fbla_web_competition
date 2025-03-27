@@ -49,7 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['profile_picture'])) {
     if (in_array($file_extension, $allowed_types)) {
         if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $target_file)) {
             // Update database with new profile picture path
-            $table = ($userType === 'student') ? 'students' : 'employers';
+            $table = ($userType === 'student') ? 'students' : 
+                     (($userType === 'employer') ? 'employers' : 'admins');
             $sql = "UPDATE $table SET profile_picture = ? WHERE id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("si", $target_file, $userId);
@@ -75,8 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['change_password'])) {
     $confirm_password = $_POST['confirm_password'];
     
     // First verify the current password
-    $table = ($userType === 'student') ? 'students' : 'employers';
-    $sql = "SELECT pass FROM $table WHERE id = ?";  // Changed 'password' to 'pass'
+    $table = ($userType === 'student') ? 'students' : 
+             (($userType === 'employer') ? 'employers' : 'admins');
+    $sql = "SELECT pass FROM $table WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $userId);
     $stmt->execute();
@@ -84,11 +86,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['change_password'])) {
     $user = $result->fetch_assoc();
     $stmt->close();
     
-    if (password_verify($current_password, $user['pass'])) {  // Changed 'password' to 'pass'
+    if (password_verify($current_password, $user['pass'])) {
         if ($new_password === $confirm_password) {
             if (strlen($new_password) >= 8) {  // Minimum password length
                 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                $sql = "UPDATE $table SET pass = ? WHERE id = ?";  // Changed 'password' to 'pass'
+                $sql = "UPDATE $table SET pass = ? WHERE id = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("si", $hashed_password, $userId);
                 
@@ -111,12 +113,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['change_password'])) {
 
 // Handle form submission for other profile updates
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
-    $table = ($userType === 'student') ? 'students' : 'employers';
+    $table = ($userType === 'student') ? 'students' : 
+             (($userType === 'employer') ? 'employers' : 'admins');
     $updates = [];
     $types = "";
     $params = [];
 
     if ($userType === 'student') {
+        // Student-specific updates (existing code)
         if (isset($_POST['bio'])) {
             $updates[] = "bio = ?";
             $types .= "s";
@@ -132,7 +136,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
             $types .= "s";
             $params[] = $_POST['education'];
         }
-    } else {
+    } elseif ($userType === 'employer') {
+        // Employer-specific updates (existing code)
         if (isset($_POST['company_description'])) {
             $updates[] = "company_description = ?";
             $types .= "s";
@@ -152,6 +157,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
             $updates[] = "industry = ?";
             $types .= "s";
             $params[] = $_POST['industry'];
+        }
+    } else {
+        // Admin-specific updates
+        if (isset($_POST['contact_email'])) {
+            $updates[] = "contact_email = ?";
+            $types .= "s";
+            $params[] = $_POST['contact_email'];
+        }
+        if (isset($_POST['admin_notes'])) {
+            $updates[] = "admin_notes = ?";
+            $types .= "s";
+            $params[] = $_POST['admin_notes'];
         }
     }
 
@@ -174,7 +191,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_profile'])) {
 }
 
 // Fetch current user data
-$table = ($userType === 'student') ? 'students' : 'employers';
+$table = ($userType === 'student') ? 'students' : 
+         (($userType === 'employer') ? 'employers' : 'admins');
 $sql = "SELECT * FROM $table WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $userId);
@@ -491,38 +509,42 @@ $stmt->close();
 </head>
 <body>
     <div class="navbar">    
-        <a href="./index.php">
-            <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
-        </a>
-        <div class="nav-links">
-            <a href="./aboutUs.php">About Us</a>
-            <a href="./resources.php">Resources</a>
-            <?php if ($isLoggedIn): ?>
-                <?php if ($userType === 'student'): ?>
-                    <a href="./studentdash.php">Student Dashboard</a>
-                <?php endif; ?>
-                <?php if ($userType === 'employer'): ?>
-                    <a href="./employerdash.php">Job Postings</a>
-                    <a href="./applicationsrecieved.php">View Applications</a>
-                <?php endif; ?>
-                <a href="./settings.php" class="profile-link">
-                    <img src="<?php 
-                        $table = ($userType === 'student') ? 'students' : 'employers';
-                        $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
-                        $stmt->bind_param("i", $_SESSION['user_id']);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $profile = $result->fetch_assoc();
-                        $stmt->close();
-                        echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
-                    ?>" 
-                    alt="Profile" 
-                    class="profile-pic" />
-                </a>
-            <?php else: ?>
-                <a href="./loginpage.php">Login</a>
-            <?php endif; ?>
-        </div>
+      <a href="./index.php">
+          <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
+      </a>
+      <div class="nav-links">
+          <a href="./aboutUs.php">About Us</a>
+          <a href="./resources.php">Resources</a>
+          <?php if ($isLoggedIn): ?>
+              <?php if ($userType === 'student'): ?>
+                  <a href="studentdash.php">Student Dashboard</a>
+              <?php endif; ?>
+              <?php if ($userType === 'employer'): ?>
+                  <a href="./employerdash.php">Job Postings</a>
+                  <a href="./applicationsrecieved.php">View Applications</a>
+              <?php endif; ?>
+              <?php if ($userType === 'admin'): ?>
+                  <a href="./admindash.php">Admin Dashboard</a>
+              <?php endif; ?>
+              <a href="./settings.php" class="profile-link">
+                  <img src="<?php 
+                      $table = ($userType === 'student') ? 'students' : 
+                              (($userType === 'employer') ? 'employers' : 'admins');
+                      $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                      $stmt->bind_param("i", $_SESSION['user_id']);
+                      $stmt->execute();
+                      $result = $stmt->get_result();
+                      $profile = $result->fetch_assoc();
+                      $stmt->close();
+                      echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                  ?>" 
+                  alt="Profile" 
+                  class="profile-pic" />
+              </a>
+          <?php else: ?>
+              <a href="./loginpage.php">Login</a>
+          <?php endif; ?>
+      </div>
     </div>
 
     <div class="settings-container">
@@ -537,7 +559,7 @@ $stmt->close();
         <?php endif; ?>
 
         <div class="settings-section">
-            <!-- Separate Profile Picture Form -->
+            <!-- Profile Picture Form (Same for all user types) -->
             <form method="POST" action="" enctype="multipart/form-data" class="profile-picture-form">
                 <div class="form-group">
                     <label>Profile Picture</label>
@@ -548,10 +570,10 @@ $stmt->close();
                 </div>
             </form>
 
-            <!-- Separate Profile Information Form -->
+            <!-- Profile Information Form -->
             <form method="POST" action="" class="profile-info-form">
                 <?php if ($userType === 'student'): ?>
-                    <!-- Student Fields -->
+                    <!-- Student Fields (Existing Code) -->
                     <div class="form-group">
                         <label for="bio">Bio</label>
                         <textarea name="bio" id="bio" placeholder="Tell us about yourself"><?php echo htmlspecialchars($userData['bio'] ?? ''); ?></textarea>
@@ -567,8 +589,8 @@ $stmt->close();
                         <textarea name="education" id="education" placeholder="Your educational background"><?php echo htmlspecialchars($userData['education'] ?? ''); ?></textarea>
                     </div>
 
-                <?php else: ?>
-                    <!-- Employer Fields -->
+                <?php elseif ($userType === 'employer'): ?>
+                    <!-- Employer Fields (Existing Code) -->
                     <div class="form-group">
                         <label for="company_description">Company Description</label>
                         <textarea name="company_description" id="company_description" placeholder="Describe your company"><?php echo htmlspecialchars($userData['company_description'] ?? ''); ?></textarea>
@@ -588,12 +610,24 @@ $stmt->close();
                         <label for="industry">Industry</label>
                         <input type="text" name="industry" id="industry" placeholder="e.g. Technology, Healthcare, Finance" value="<?php echo htmlspecialchars($userData['industry'] ?? ''); ?>">
                     </div>
+
+                <?php else: ?>
+                    <!-- Admin Fields -->
+                    <div class="form-group">
+                        <label for="contact_email">Contact Email</label>
+                        <input type="email" name="contact_email" id="contact_email" placeholder="Contact email for admin" value="<?php echo htmlspecialchars($userData['contact_email'] ?? ''); ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admin_notes">Admin Notes</label>
+                        <textarea name="admin_notes" id="admin_notes" placeholder="Internal notes or comments"><?php echo htmlspecialchars($userData['admin_notes'] ?? ''); ?></textarea>
+                    </div>
                 <?php endif; ?>
 
                 <button type="submit" name="update_profile" class="submit-button">Save Changes</button>
             </form>
 
-            <!-- Password Change Form -->
+            <!-- Password Change Form (Same for all user types) -->
             <form method="POST" action="" class="password-section">
                 <h2>Change Password</h2>
                 <div class="password-requirements">

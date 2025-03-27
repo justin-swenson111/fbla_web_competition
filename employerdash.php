@@ -3,84 +3,153 @@ session_start();
 
 $servername = "localhost";
 $username = "root";
-$password = "mysql"; // Default password for XAMPP is empty
+$password = "mysql";
 $dbname = "fbla";
 
 // Database connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check if the user is logged in
-$isLoggedIn = isset($_SESSION['user_id']); // Check if user is logged in by checking user_id
-$userType = $_SESSION['user_type'] ?? null; // Check user type from session
+$isLoggedIn = isset($_SESSION['user_id']);
+$userType = $_SESSION['user_type'] ?? null;
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Validate input helper function
+function validateInput($input, $maxLength = 255) {
+    // Trim whitespace
+    $input = trim($input);
+    
+    // Check if input is empty after trimming
+    if (empty($input)) {
+        return false;
+    }
+    
+    // Check max length
+    if (strlen($input) > $maxLength) {
+        return false;
+    }
+    
+    return $input;
+}
+
 // Handle job posting form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $requiredFields = ['title', 'description', 'requirements', 'salary', 'location', 'job_type', 'deadline'];
+    $requiredFields = ['title', 'description', 'requirements', 'salary', 'location', 'job_type', 'job_subject', 'deadline'];
     $missingFields = [];
+    $sanitizedData = [];
 
+    // Validate and sanitize inputs
     foreach ($requiredFields as $field) {
-        if (empty($_POST[$field])) {
-            $missingFields[] = $field;
+        // Special handling for numeric and text fields
+        if ($field === 'salary') {
+            // Validate salary as numeric
+            $sanitizedData[$field] = filter_input(INPUT_POST, $field, FILTER_VALIDATE_FLOAT);
+            if ($sanitizedData[$field] === false || $sanitizedData[$field] <= 0) {
+                $missingFields[] = $field;
+            }
+        } else {
+            // Validate other fields
+            $sanitizedData[$field] = validateInput($_POST[$field]);
+            if ($sanitizedData[$field] === false) {
+                $missingFields[] = $field;
+            }
         }
     }
 
     if (!empty($missingFields)) {
         $_SESSION['notification'] = [
             'type' => 'error',
-            'message' => 'Missing required fields: ' . implode(', ', $missingFields),
+            'message' => 'Missing or invalid fields: ' . implode(', ', $missingFields),
         ];
     } else {
-        $title = $_POST['title'];
-        $description = $_POST['description'];
-        $requirements = $_POST['requirements'];
-        $salary = $_POST['salary'];
-        $location = $_POST['location'];
-        $jobType = $_POST['job_type'];
-        $deadline = $_POST['deadline'];
-
-        // Get employer's company information
-        $employerId = $_SESSION['user_id'];
-        $stmt = $conn->prepare("SELECT company_name FROM employers WHERE id = ?");
-        $stmt->bind_param("i", $employerId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 0) {
+        // Validate deadline is in the future
+        $deadline = new DateTime($sanitizedData['deadline']);
+        $now = new DateTime();
+        
+        if ($deadline <= $now) {
             $_SESSION['notification'] = [
                 'type' => 'error',
-                'message' => 'Employer information not found.',
+                'message' => 'Application deadline must be in the future.',
             ];
         } else {
-            $companyInfo = $result->fetch_assoc();
-            $companyName = $companyInfo['company_name'];
-            $stmt->close();
+            // Get employer's company information
+            $employerId = $_SESSION['user_id'];
+            $stmt = $conn->prepare("SELECT company_name FROM employers WHERE id = ?");
+            $stmt->bind_param("i", $employerId);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            // Insert the job posting into the database
-            $insertSql = "INSERT INTO job_postings (employer_id, company_name, title, description, requirements, salary, location, job_type, application_deadline)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($insertSql);
-            $stmt->bind_param("issssdsss", $employerId, $companyName, $title, $description, $requirements, $salary, $location, $jobType, $deadline);
-
-            if ($stmt->execute()) {
-                $_SESSION['notification'] = [
-                    'type' => 'success',
-                    'message' => 'Job posted successfully!',
-                ];
-            } else {
+            if ($result->num_rows === 0) {
                 $_SESSION['notification'] = [
                     'type' => 'error',
-                    'message' => 'Error: ' . $stmt->error,
+                    'message' => 'Employer information not found.',
                 ];
-            }
+            } else {
+                $companyInfo = $result->fetch_assoc();
+                $companyName = $companyInfo['company_name'];
+                $stmt->close();
 
-            $stmt->close();
+                // Insert the job posting into the waitlist
+                $insertSql = "INSERT INTO job_posting_waitlist (
+                    employer_id, company_name, title, description, 
+                    requirements, salary, location, job_type, 
+                    job_subject, application_deadline
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                
+                $stmt = $conn->prepare($insertSql);
+                $stmt->bind_param(
+                    "issssdssss", 
+                    $employerId, 
+                    $companyName, 
+                    $sanitizedData['title'], 
+                    $sanitizedData['description'], 
+                    $sanitizedData['requirements'], 
+                    $sanitizedData['salary'], 
+                    $sanitizedData['location'], 
+                    $sanitizedData['job_type'], 
+                    $sanitizedData['job_subject'], 
+                    $sanitizedData['deadline']
+                );
+
+                try {
+                    if ($stmt->execute()) {
+                        // Log the job posting submission
+                        $logSql = "INSERT INTO system_logs (activity_type, description) VALUES ('job_posting_submitted', ?)";
+                        $logStmt = $conn->prepare($logSql);
+                        $logDescription = "Job posting submitted by {$companyName}: {$sanitizedData['title']}";
+                        $logStmt->bind_param("s", $logDescription);
+                        $logStmt->execute();
+                        $logStmt->close();
+
+                        $_SESSION['notification'] = [
+                            'type' => 'success',
+                            'message' => 'Job posted successfully and sent for admin approval!',
+                        ];
+                    } else {
+                        $_SESSION['notification'] = [
+                            'type' => 'error',
+                            'message' => 'Error submitting job posting: ' . $stmt->error,
+                        ];
+                    }
+                } catch (Exception $e) {
+                    $_SESSION['notification'] = [
+                        'type' => 'error',
+                        'message' => 'An unexpected error occurred: ' . $e->getMessage(),
+                    ];
+                }
+
+                $stmt->close();
+            }
         }
     }
+
+    // Redirect to prevent form resubmission
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 ?>
 
@@ -344,6 +413,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #45a049;
         }
 
+        /* Select with Emojis */
+        .emoji-select {
+            position: relative;
+        }
+
+        .emoji-select select {
+            padding-right: 40px; /* Space for the emoji */
+        }
+
+        .emoji {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
         /* Responsive Styles */
         @media screen and (max-width: 768px) {
             .navbar {
@@ -353,40 +440,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-
     <div class="navbar">    
-        <a href="./index.php">
-            <img src="./media/logo.png" alt="Logo" class="logo" height="50px" width="auto" />
-        </a>
-        <div class="nav-links">
-            <a href="./aboutUs.php">About Us</a>
-            <a href="./resources.php">Resources</a>
-            <?php if ($isLoggedIn): ?>
-                <?php if ($userType === 'student'): ?>
-                    <a href="./studentdash.php">Student Dashboard</a>
-                <?php endif; ?>
-                <?php if ($userType === 'employer'): ?>
-                    <a href="./employerdash.php">Job Postings</a>
-                    <a href="./applicationsrecieved.php">View Applications</a>
-                <?php endif; ?>
-                <a href="./settings.php" class="profile-link">
-                    <img src="<?php 
-                        $table = ($userType === 'student') ? 'students' : 'employers';
-                        $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
-                        $stmt->bind_param("i", $_SESSION['user_id']);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $profile = $result->fetch_assoc();
-                        $stmt->close();
-                        echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
-                    ?>" 
-                    alt="Profile" 
-                    class="profile-pic" />
-                </a>
-            <?php else: ?>
-                <a href="./loginpage.php">Login</a>
-            <?php endif; ?>
-        </div>
+      <a href="./index.php">
+          <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
+      </a>
+      <div class="nav-links">
+          <a href="./aboutUs.php">About Us</a>
+          <a href="./resources.php">Resources</a>
+          <?php if ($isLoggedIn): ?>
+              <?php if ($userType === 'student'): ?>
+                  <a href="studentdash.php">Student Dashboard</a>
+              <?php endif; ?>
+              <?php if ($userType === 'employer'): ?>
+                  <a href="./employerdash.php">Job Postings</a>
+                  <a href="./applicationsrecieved.php">View Applications</a>
+              <?php endif; ?>
+              <?php if ($userType === 'admin'): ?>
+                  <a href="./admindash.php">Admin Dashboard</a>
+              <?php endif; ?>
+              <a href="./settings.php" class="profile-link">
+                  <img src="<?php 
+                      $table = ($userType === 'student') ? 'students' : 
+                              (($userType === 'employer') ? 'employers' : 'admins');
+                      $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                      $stmt->bind_param("i", $_SESSION['user_id']);
+                      $stmt->execute();
+                      $result = $stmt->get_result();
+                      $profile = $result->fetch_assoc();
+                      $stmt->close();
+                      echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                  ?>" 
+                  alt="Profile" 
+                  class="profile-pic" />
+              </a>
+          <?php else: ?>
+              <a href="./loginpage.php">Login</a>
+          <?php endif; ?>
+      </div>
     </div>
 
     <h1>Create a Job Posting</h1>
@@ -427,13 +517,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div>
             <label for="job_type">Job Type:</label>
-            <select id="job_type" name="job_type" required>
-                <option value="">Select Job Type</option>
-                <option value="Full-time">Full-time</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Contract">Contract</option>
-                <option value="Internship">Internship</option>
-            </select>
+            <div class="emoji-select">
+                <select id="job_type" name="job_type" required>
+                    <option value="">Select Job Type</option>
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                </select>
+                <span class="emoji" id="job_type_emoji">📋</span>
+            </div>
+        </div>
+
+        <div>
+            <label for="job_subject">Job Subject:</label>
+            <div class="emoji-select">
+                <select id="job_subject" name="job_subject" required>
+                    <option value="">Select Job Subject</option>
+                    <option value="Tech">Tech</option>
+                    <option value="HVAC">HVAC</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Automotives">Automotives</option>
+                    <option value="Healthcare">Healthcare</option>
+                </select>
+                <span class="emoji" id="job_subject_emoji">🔍</span>
+            </div>
         </div>
 
         <div>
@@ -469,6 +577,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
 
+        // Job Type Emojis
+        const jobTypeSelect = document.getElementById('job_type');
+        const jobTypeEmoji = document.getElementById('job_type_emoji');
+        const jobTypeEmojis = {
+            "": "📋",
+            "Full-time": "⏰",
+            "Part-time": "🕒",
+            "Contract": "📝",
+            "Internship": "🎓"
+        };
+
+        jobTypeSelect.addEventListener('change', function() {
+            jobTypeEmoji.textContent = jobTypeEmojis[this.value] || "📋";
+        });
+
+        // Job Subject Emojis
+        const jobSubjectSelect = document.getElementById('job_subject');
+        const jobSubjectEmoji = document.getElementById('job_subject_emoji');
+        const jobSubjectEmojis = {
+            "": "🔍",
+            "Tech": "💻",
+            "Biology": "🧬",
+            "HVAC": "❄️",
+            "Electrical": "⚡",
+            "Automotives": "🚗",
+            "Healthcare": "🏥",
+            "Finance": "💰",
+            "Education": "📚",
+            "Marketing": "📈",
+            "Construction": "🏗️"
+        };
+
+        jobSubjectSelect.addEventListener('change', function() {
+            jobSubjectEmoji.textContent = jobSubjectEmojis[this.value] || "🔍";
+        });
     </script>
 
 </body>

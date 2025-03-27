@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $company_name = $conn->real_escape_string($_POST['company_name']);
 
                 // Insert into Employers table
-                $sql = "INSERT INTO employers (fname, lname, email, pass, company_name, user_type) VALUES (?, ?, ?, ?, ?, ?)";
+                $sql = "INSERT INTO employer_waitlist (fname, lname, email, pass, company_name, user_type) VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("ssssss", $first_name, $last_name, $email, $hashed_password, $company_name, $user_type);
             } else {
@@ -510,40 +510,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
   </head>
     <body>
-      <div class="navbar">    
-          <a href="./index.php">
-              <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
-          </a>
-          <div class="nav-links">
-              <a href="./aboutUs.php">About Us</a>
-              <a href="./resources.php">Resources</a>
-              <?php if ($isLoggedIn): ?>
-                  <?php if ($userType === 'student'): ?>
-                      <a href="studentdash.php">Student Dashboard</a>
-                  <?php endif; ?>
-                  <?php if ($userType === 'employer'): ?>
-                      <a href="./employerdash.php">Job Postings</a>
-                      <a href="./applicationsrecieved.php">View Applications</a>
-                  <?php endif; ?>
-                  <a href="./settings.php" class="profile-link">
-                      <img src="<?php 
-                          $table = ($userType === 'student') ? 'students' : 'employers';
-                          $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
-                          $stmt->bind_param("i", $_SESSION['user_id']);
-                          $stmt->execute();
-                          $result = $stmt->get_result();
-                          $profile = $result->fetch_assoc();
-                          $stmt->close();
-                          echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
-                      ?>" 
-                      alt="Profile" 
-                      class="profile-pic" />
-                  </a>
-              <?php else: ?>
-                  <a href="./loginpage.php">Login</a>
-              <?php endif; ?>
-          </div>
-      </div>
+        <div class="navbar">    
+        <a href="./index.php">
+            <img src="./media/logo.png" alt="Logo" class="logo" height="200px" width="auto" />
+        </a>
+        <div class="nav-links">
+            <a href="./aboutUs.php">About Us</a>
+            <a href="./resources.php">Resources</a>
+            <?php if ($isLoggedIn): ?>
+                <?php if ($userType === 'student'): ?>
+                    <a href="studentdash.php">Student Dashboard</a>
+                <?php endif; ?>
+                <?php if ($userType === 'employer'): ?>
+                    <a href="./employerdash.php">Job Postings</a>
+                    <a href="./applicationsrecieved.php">View Applications</a>
+                <?php endif; ?>
+                <?php if ($userType === 'admin'): ?>
+                    <a href="./admindash.php">Admin Dashboard</a>
+                <?php endif; ?>
+                <a href="./settings.php" class="profile-link">
+                    <img src="<?php 
+                        $table = ($userType === 'student') ? 'students' : 
+                                (($userType === 'employer') ? 'employers' : 'admins');
+                        $stmt = $conn->prepare("SELECT profile_picture FROM $table WHERE id = ?");
+                        $stmt->bind_param("i", $_SESSION['user_id']);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $profile = $result->fetch_assoc();
+                        $stmt->close();
+                        echo !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : './media/default-image.png';
+                    ?>" 
+                    alt="Profile" 
+                    class="profile-pic" />
+                </a>
+            <?php else: ?>
+                <a href="./loginpage.php">Login</a>
+            <?php endif; ?>
+        </div>
+        </div>
 
       <div class="background">
           <div class="signup-container">
