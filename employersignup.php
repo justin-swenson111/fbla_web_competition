@@ -519,6 +519,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="./resources.php">Resources</a>
             <?php if ($isLoggedIn): ?>
                 <?php if ($userType === 'student'): ?>
+                        <a href="scholarships.php">Scholarships</a>
                     <a href="studentdash.php">Student Dashboard</a>
                 <?php endif; ?>
                 <?php if ($userType === 'employer'): ?>

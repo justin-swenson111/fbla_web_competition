@@ -331,47 +331,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             position: fixed;
             top: 70px;
             right: 20px;
-            padding: 15px;
-            border-radius: 5px;
+            padding: 15px 20px;
+            border-radius: 8px;
             color: #fff;
             font-size: 14px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             display: none;
+            animation: slideIn 0.3s ease-out;
+            font-weight: 500;
         }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         .notification.success {
             background-color: #4CAF50;
+            border-left: 4px solid #2E7D32;
         }
+
         .notification.error {
             background-color: #f44336;
+            border-left: 4px solid #B71C1C;
         }
 
         /* Form Styles */
         h1 {
             text-align: center;
-            margin: 2rem 0;
-            font-size: 2rem;
-            color: #333;
+            margin: 2.5rem 0;
+            font-size: 2.2rem;
+            color: #2c3e50;
+            font-weight: 700;
+            position: relative;
+        }
+
+        h1:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: #f57f17;
+            margin: 12px auto 0;
+            border-radius: 2px;
         }
 
         form {
             max-width: 700px;
-            margin: 20px auto;
+            margin: 30px auto;
             background-color: #fff;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
         }
 
         form div {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.8rem;
         }
 
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: #555;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+            color: #3a4a5a;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        input[type="text"]:focus + label,
+        input[type="number"]:focus + label,
+        textarea:focus + label,
+        select:focus + label,
+        input[type="date"]:focus + label {
+            color: #f57f17;
         }
 
         input[type="text"], 
@@ -380,12 +418,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         select, 
         input[type="date"] {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             margin: 8px 0;
             box-sizing: border-box;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            transition: border 0.3s ease;
+            border: 2px solid #e1e5ea;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background-color: #f9fafc;
         }
 
         input[type="text"]:focus, 
@@ -395,22 +435,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         input[type="date"]:focus {
             border-color: #f57f17;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(245, 127, 23, 0.15);
+            background-color: #fff;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
+            padding: 14px;
+            background-color: #f57f17;
             color: white;
             border: none;
             cursor: pointer;
             font-size: 1.1rem;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(245, 127, 23, 0.2);
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #e65100;
+            box-shadow: 0 6px 12px rgba(245, 127, 23, 0.3);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(245, 127, 23, 0.2);
         }
 
         /* Select with Emojis */
@@ -420,15 +473,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .emoji-select select {
             padding-right: 40px; /* Space for the emoji */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f57f17' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
         }
 
         .emoji {
             position: absolute;
-            right: 10px;
+            right: 40px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 1.2rem;
             pointer-events: none;
+        }
+
+        /* Field Groups */
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row > div {
+            flex: 1;
         }
 
         /* Responsive Styles */
@@ -436,6 +506,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .navbar {
                 padding: 1rem 2rem;
             }
+            
+            form {
+                padding: 1.5rem;
+                margin: 20px 15px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            input[type="text"], 
+            input[type="number"], 
+            textarea, 
+            select, 
+            input[type="date"] {
+                padding: 12px;
+            }
+        }
+
+        /* Field guidance text */
+        .field-hint {
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Placeholder styling */
+        ::placeholder {
+            color: #aab0b7;
+            opacity: 1;
         }
     </style>
 </head>
@@ -449,6 +556,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
+                    <a href="scholarships.php">Scholarships</a>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>
@@ -477,7 +585,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <a href="./loginpage.php">Login</a>
           <?php endif; ?>
       </div>
-    </div>
+    </div> 
 
     <h1>Create a Job Posting</h1>
 

@@ -17,237 +17,59 @@ $userType = $_SESSION['user_type'] ?? null;
 $userId = $_SESSION['user_id'] ?? null;
 
 // Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'admin') {
+if (!$isLoggedIn || $userType !== 'admin') {
     header("Location: loginpage.php");
     exit();
 }
 
-// Handle job posting approval/rejection
+// Handle AJAX-based approval/rejection requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // New job posting approval handling
-    if (isset($_POST['approve_job_posting'])) {
-        $job_posting_id = $_POST['job_posting_id'];
-        
-        $conn->begin_transaction();
-        
-        try {
-            // Fetch job posting details from waitlist
-            $stmt = $conn->prepare("SELECT * FROM job_posting_waitlist WHERE id = ?");
-            $stmt->bind_param("i", $job_posting_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $job_posting = $result->fetch_assoc();
-            $stmt->close();
+    header('Content-Type: application/json');
+    
+    try {
+        if (isset($_POST['action']) && isset($_POST['id'])) {
+            $id = (int)$_POST['id'];
+            $action = $_POST['action'];
             
-            if ($job_posting) {
-                $stmt = $conn->prepare("INSERT INTO job_postings (
-                    employer_id, company_name, title, description, 
-                    requirements, salary, location, job_type, 
-                    job_subject, application_deadline, approval_status
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Approved')");
-                
-                $stmt->bind_param("issssdssss", 
-                    $job_posting['employer_id'],
-                    $job_posting['company_name'],
-                    $job_posting['title'],
-                    $job_posting['description'],
-                    $job_posting['requirements'],
-                    $job_posting['salary'],
-                    $job_posting['location'],
-                    $job_posting['job_type'],
-                    $job_posting['job_subject'],
-                    $job_posting['application_deadline']
-                );
-                
-
+            if ($action === 'approve_job_posting') {
+                $stmt = $conn->prepare("UPDATE job_posting_waitlist SET approval_status = 'Approved' WHERE id = ?");
+                $stmt->bind_param("i", $id);
                 $stmt->execute();
                 $stmt->close();
-                
-                // Remove from waitlist
+                echo json_encode(["success" => true, "message" => "Job posting approved successfully!"]);
+            } elseif ($action === 'reject_job_posting' && isset($_POST['reason'])) {
+                $reason = htmlspecialchars($_POST['reason']);
                 $stmt = $conn->prepare("DELETE FROM job_posting_waitlist WHERE id = ?");
-                $stmt->bind_param("i", $job_posting_id);
+                $stmt->bind_param("i", $id);
                 $stmt->execute();
                 $stmt->close();
-                
-                // Log the activity
-                $log_description = "Job posting {$job_posting['title']} approved";
-                $stmt = $conn->prepare("INSERT INTO system_logs (activity_type, description) VALUES ('job_posting_approval', ?)");
-                $stmt->bind_param("s", $log_description);
+                echo json_encode(["success" => true, "message" => "Job posting rejected successfully! Reason: $reason"]);
+            } elseif ($action === 'approve_employer') {
+                $stmt = $conn->prepare("UPDATE employer_waitlist SET approval_status = 'Approved' WHERE id = ?");
+                $stmt->bind_param("i", $id);
                 $stmt->execute();
                 $stmt->close();
-                
-                $conn->commit();
-                $_SESSION['notification'] = [
-                    'type' => 'success',
-                    'message' => 'Job posting approved successfully!',
-                ];
-            }
-        } catch (Exception $e) {
-            $conn->rollback();
-            $_SESSION['notification'] = [
-                'type' => 'error',
-                'message' => 'Error approving job posting: ' . $e->getMessage(),
-            ];
-        }
-    }
-    
-    if (isset($_POST['reject_job_posting'])) {
-        $job_posting_id = $_POST['job_posting_id'];
-        
-        $conn->begin_transaction();
-        
-        try {
-            // Fetch job posting details for logging
-            $stmt = $conn->prepare("SELECT title FROM job_posting_waitlist WHERE id = ?");
-            $stmt->bind_param("i", $job_posting_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $job_posting = $result->fetch_assoc();
-            $stmt->close();
-            
-            // Remove from waitlist
-            $stmt = $conn->prepare("DELETE FROM job_posting_waitlist WHERE id = ?");
-            $stmt->bind_param("i", $job_posting_id);
-            $stmt->execute();
-            $stmt->close();
-            
-            // Log the activity
-            $log_description = "Job posting {$job_posting['title']} rejected";
-            $stmt = $conn->prepare("INSERT INTO system_logs (activity_type, description) VALUES ('job_posting_rejection', ?)");
-            $stmt->bind_param("s", $log_description);
-            $stmt->execute();
-            $stmt->close();
-            
-            $conn->commit();
-            $_SESSION['notification'] = [
-                'type' => 'success',
-                'message' => 'Job posting rejected successfully!',
-            ];
-        } catch (Exception $e) {
-            $conn->rollback();
-            $_SESSION['notification'] = [
-                'type' => 'error',
-                'message' => 'Error rejecting job posting: ' . $e->getMessage(),
-            ];
-        }
-    }
-
-    // Handle employer approval
-    if (isset($_POST['approve_employer'])) {
-        $employer_id = $_POST['employer_id'];
-        
-        $conn->begin_transaction();
-        
-        try {
-            // Fetch employer details from waitlist
-            $stmt = $conn->prepare("SELECT * FROM employer_waitlist WHERE id = ?");
-            $stmt->bind_param("i", $employer_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $employer = $result->fetch_assoc();
-            $stmt->close();
-            
-            if ($employer) {
-                // Insert into employers table
-                $stmt = $conn->prepare("INSERT INTO employers (
-                    username, email, password, company_name, 
-                    contact_name, contact_email, contact_phone, address, 
-                    city, state, zip_code, description, website
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                
-                $stmt->bind_param("sssssssssssss", 
-                    $employer['username'],
-                    $employer['email'],
-                    $employer['password'],
-                    $employer['company_name'],
-                    $employer['contact_name'],
-                    $employer['contact_email'],
-                    $employer['contact_phone'],
-                    $employer['address'],
-                    $employer['city'],
-                    $employer['state'],
-                    $employer['zip_code'],
-                    $employer['description'],
-                    $employer['website']
-                );
-                $stmt->execute();
-                $stmt->close();
-                
-                // Remove from waitlist
+                echo json_encode(["success" => true, "message" => "Employer approved successfully!"]);
+            } elseif ($action === 'reject_employer' && isset($_POST['reason'])) {
+                $reason = htmlspecialchars($_POST['reason']);
                 $stmt = $conn->prepare("DELETE FROM employer_waitlist WHERE id = ?");
-                $stmt->bind_param("i", $employer_id);
+                $stmt->bind_param("i", $id);
                 $stmt->execute();
                 $stmt->close();
-                
-                // Log the activity
-                $log_description = "Employer {$employer['company_name']} approved";
-                $stmt = $conn->prepare("INSERT INTO system_logs (activity_type, description) VALUES ('employer_approval', ?)");
-                $stmt->bind_param("s", $log_description);
-                $stmt->execute();
-                $stmt->close();
-                
-                $conn->commit();
-                $_SESSION['notification'] = [
-                    'type' => 'success',
-                    'message' => 'Employer approved successfully!',
-                ];
+                echo json_encode(["success" => true, "message" => "Employer rejected successfully! Reason: $reason"]);
+            } else {
+                throw new Exception("Invalid action or missing parameters.");
             }
-        } catch (Exception $e) {
-            $conn->rollback();
-            $_SESSION['notification'] = [
-                'type' => 'error',
-                'message' => 'Error approving employer: ' . $e->getMessage(),
-            ];
+        } else {
+            throw new Exception("Invalid request.");
         }
+    } catch (Exception $e) {
+        echo json_encode(["success" => false, "message" => $e->getMessage()]);
     }
-    
-    if (isset($_POST['reject_employer'])) {
-        $employer_id = $_POST['employer_id'];
-        
-        $conn->begin_transaction();
-        
-        try {
-            // Fetch employer details for logging
-            $stmt = $conn->prepare("SELECT company_name FROM employer_waitlist WHERE id = ?");
-            $stmt->bind_param("i", $employer_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $employer = $result->fetch_assoc();
-            $stmt->close();
-            
-            // Remove from waitlist
-            $stmt = $conn->prepare("DELETE FROM employer_waitlist WHERE id = ?");
-            $stmt->bind_param("i", $employer_id);
-            $stmt->execute();
-            $stmt->close();
-            
-            // Log the activity
-            $log_description = "Employer {$employer['company_name']} rejected";
-            $stmt = $conn->prepare("INSERT INTO system_logs (activity_type, description) VALUES ('employer_rejection', ?)");
-            $stmt->bind_param("s", $log_description);
-            $stmt->execute();
-            $stmt->close();
-            
-            $conn->commit();
-            $_SESSION['notification'] = [
-                'type' => 'success',
-                'message' => 'Employer rejected successfully!',
-            ];
-        } catch (Exception $e) {
-            $conn->rollback();
-            $_SESSION['notification'] = [
-                'type' => 'error',
-                'message' => 'Error rejecting employer: ' . $e->getMessage(),
-            ];
-        }
-    }
-
-    // Redirect to prevent form resubmission
-    header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
 
-// Function to get total user count
+// Fetch dashboard data
 function getTotalUsers($conn) {
     $sql = "SELECT 
         (SELECT COUNT(*) FROM students) as students,
@@ -260,36 +82,19 @@ function getTotalUsers($conn) {
     return $result->fetch_assoc();
 }
 
-// Function to get pending employers
 function getPendingEmployers($conn) {
     $sql = "SELECT * FROM employer_waitlist WHERE approval_status = 'Pending'";
-    $result = $conn->query($sql);
-    
-    $pending_employers = [];
-    while ($row = $result->fetch_assoc()) {
-        $pending_employers[] = $row;
-    }
-    
-    return $pending_employers;
+    return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
-// Function to get pending job postings
 function getPendingJobPostings($conn) {
     $sql = "SELECT jpw.*, e.company_name as employer_company 
             FROM job_posting_waitlist jpw
             JOIN employers e ON jpw.employer_id = e.id
             WHERE jpw.approval_status = 'Pending'";
-    $result = $conn->query($sql);
-    
-    $pending_job_postings = [];
-    while ($row = $result->fetch_assoc()) {
-        $pending_job_postings[] = $row;
-    }
-    
-    return $pending_job_postings;
+    return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
-// Fetch dashboard data
 $userStats = getTotalUsers($conn);
 $pendingEmployers = getPendingEmployers($conn);
 $pendingJobPostings = getPendingJobPostings($conn);
@@ -465,138 +270,299 @@ $pendingJobPostings = getPendingJobPostings($conn);
           }
       }
 
-      .admin-dashboard {
-          max-width: 1200px;
-          margin: 0 auto;
-          background-color: white;
-          padding: 30px;
-          border-radius: 10px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      }
-      h1 {
-          color: #2c3e50;
-          text-align: center;
-          margin-bottom: 30px;
-      }
+      /* Base styles */
+        :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --success-color: #4cc9f0;
+        --danger-color: #f72585;
+        --warning-color: #f8961e;
+        --light-bg: #f8f9fa;
+        --dark-text: #2b2d42;
+        --medium-text: #495057;
+        --light-text: #6c757d;
+        --border-radius: 12px;
+        --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+        }
+
+        .admin-dashboard {
+        max-width: 1400px;
+        margin: 2rem auto;
+        background-color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+        color: var(--dark-text);
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 700;
+        font-size: 2.25rem;
+        position: relative;
+        padding-bottom: 0.75rem;
+        }
+
+        h1:after {
+        content: '';
+        position: absolute;
+        width: 80px;
+        height: 4px;
+        background-color: var(--primary-color);
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 2px;
+        }
+
+        /* Dashboard Layout */
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;  /* Change to single column */
-            gap: 20px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
         }
 
         .dashboard-card {
-            width: 100%;  /* Ensure full width */
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        width: 100%;
+        background-color: #fff;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
         }
 
+        .dashboard-card:hover {
+        transform: translateY(-5px);
+        }
+
+        .dashboard-card h2 {
+        color: var(--dark-text);
+        margin-top: 0;
+        margin-bottom: 1.25rem;
+        font-size: 1.5rem;
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 0.75rem;
+        }
+
+        /* Stats Grid */
         .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));  /* Responsive grid */
-            gap: 15px;
-            margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
         }
-      .stat-item {
-          background-color: #f8f9fa;
-          border-radius: 6px;
-          padding: 15px;
-          text-align: center;
-          transition: transform 0.3s ease;
-      }
-      .stat-item:hover {
-          transform: scale(1.05);
-      }
-      .stat-item h3 {
-          margin: 0 0 10px;
-          color: #495057;
-      }
-      .stat-item p {
-          font-size: 24px;
-          font-weight: bold;
-          color: #2c3e50;
-          margin: 0;
-      }
-      .pending-employers-list table {
-          width: 100%;
-          border-collapse: collapse;
-      }
-      .pending-employers-list th, 
-      .pending-employers-list td {
-          border: 1px solid #e9ecef;
-          padding: 10px;
-          text-align: left;
-      }
-      .pending-employers-list th {
-          background-color: #f1f3f5;
-          color: #495057;
-      }
-      .btn {
-          padding: 8px 12px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-      }
-      .btn-success {
-          background-color: #2ecc71;
-          color: white;
-      }
-      .btn-danger {
-          background-color: #e74c3c;
-          color: white;
-      }
-      .alert {
-          padding: 15px;
-          margin-bottom: 20px;
-          border-radius: 4px;
-      }
-      .alert-success {
-          background-color: #d4edda;
-          color: #155724;
-      }
-      .alert-danger {
-          background-color: #f8d7da;
-          color: #721c24;
-      }
 
+        .stat-item {
+        background-color: var(--light-bg);
+        border-radius: var(--border-radius);
+        padding: 1.25rem;
+        text-align: center;
+        transition: var(--transition);
+        border-left: 5px solid var(--primary-color);
+        }
+
+        .stat-item:nth-child(2) {
+        border-left-color: var(--success-color);
+        }
+
+        .stat-item:nth-child(3) {
+        border-left-color: var(--warning-color);
+        }
+
+        .stat-item:nth-child(4) {
+        border-left-color: var(--danger-color);
+        }
+
+        .stat-item:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item h3 {
+        margin: 0 0 0.75rem;
+        color: var(--medium-text);
+        font-size: 1rem;
+        font-weight: 600;
+        }
+
+        .stat-item p {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        }
+
+        /* Tables */
+        .pending-employers-list,
         .pending-job-postings-list {
-            width: 100%; /* Ensures full width of the container */
+        width: 100%;
+        overflow-x: auto;
         }
 
+        .pending-employers-list table,
         .pending-job-postings-list table {
-            width: 100%;
-            border-collapse: collapse;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 1rem;
         }
 
-        .pending-job-postings-list th, 
+        .pending-employers-list th,
+        .pending-job-postings-list th,
+        .pending-employers-list td,
         .pending-job-postings-list td {
-            border: 1px solid #e9ecef;
-            padding: 10px;
-            text-align: left;
+        padding: 1rem;
+        text-align: left;
+        border: none;
+        border-bottom: 1px solid #e9ecef;
         }
 
+        .pending-employers-list th,
         .pending-job-postings-list th {
-            background-color: #f1f3f5;
-            color: #495057;
-            font-weight: 600;
+        background-color: #f8f9fa;
+        color: var(--medium-text);
+        font-weight: 600;
+        position: sticky;
+        top: 0;
         }
 
-        .pending-job-postings-list tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
+        .pending-employers-list tbody tr,
+        .pending-job-postings-list tbody tr {
+        transition: var(--transition);
         }
 
+        .pending-employers-list tbody tr:last-child td,
+        .pending-job-postings-list tbody tr:last-child td {
+        border-bottom: none;
+        }
+
+        .pending-employers-list tbody tr:hover,
         .pending-job-postings-list tbody tr:hover {
-            background-color: #e9ecef;
-            transition: background-color 0.3s ease;
+        background-color: #f0f4f8;
         }
 
+        /* Buttons */
+        .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        }
+
+        .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-success {
+        background-color: var(--success-color);
+        color: white;
+        }
+
+        .btn-success:hover {
+        background-color: #41b4da;
+        }
+
+        .btn-danger {
+        background-color: var(--danger-color);
+        color: white;
+        }
+
+        .btn-danger:hover {
+        background-color: #e61376;
+        }
+
+        /* Alerts */
+        .alert {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: var(--border-radius);
+        position: relative;
+        border-left: 5px solid transparent;
+        }
+
+        .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left-color: #2ecc71;
+        }
+
+        .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left-color: #e74c3c;
+        }
+
+        /* Charts */
         #userChart {
-            max-width: 1000px;  /* Adjust this value as needed */
-            max-height: 1000px; /* Adjust this value as needed */
-            margin: 0 auto;    /* Center the chart */
-            display: block;    /* Ensure it's a block-level element */
+        max-width: 100%;
+        height: auto;
+        margin: 1.5rem auto;
+        display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+        .admin-dashboard {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        }
+
+        @media (max-width: 768px) {
+        .stat-grid {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            padding: 1rem;
+        }
+        
+        .stat-item p {
+            font-size: 1.5rem;
+        }
+        
+        h1 {
+            font-size: 1.75rem;
+        }
+        
+        .dashboard-card {
+            padding: 1.25rem;
+        }
+        
+        .dashboard-card h2 {
+            font-size: 1.25rem;
+        }
+        }
+
+        @media (max-width: 576px) {
+        .admin-dashboard {
+            margin: 0.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .stat-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        table th, table td {
+            padding: 0.75rem;
+        }
         }
     </style>
 </head>
@@ -610,6 +576,7 @@ $pendingJobPostings = getPendingJobPostings($conn);
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
+                    <a href="scholarships.php">Scholarships</a>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>
@@ -643,13 +610,9 @@ $pendingJobPostings = getPendingJobPostings($conn);
     <div class="admin-dashboard">
         <h1>Admin Dashboard</h1>
         
-        <?php if (isset($success_message)): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success_message); ?></div>
-        <?php endif; ?>
-        
-        <?php if (isset($error_message)): ?>
-            <div class="alert alert-danger"><?php echo htmlspecialchars($error_message); ?></div>
-        <?php endif; ?>
+        <div id="alert-container">
+            <!-- Alerts will be inserted here dynamically -->
+        </div>
         
         <div class="dashboard-grid">
             <!-- User Statistics -->
@@ -670,11 +633,11 @@ $pendingJobPostings = getPendingJobPostings($conn);
                     </div>
                     <div class="stat-item pending-employers">
                         <h3>Pending Employers</h3>
-                        <p><?php echo $userStats['pending_employers']; ?></p>
+                        <p id="pending-employers-count"><?php echo $userStats['pending_employers']; ?></p>
                     </div>
                     <div class="stat-item pending-job-postings">
                         <h3>Pending Job Postings</h3>
-                        <p><?php echo $userStats['pending_job_postings']; ?></p>
+                        <p id="pending-job-postings-count"><?php echo $userStats['pending_job_postings']; ?></p>
                     </div>
                 </div>
                 <canvas id="userChart"></canvas>
@@ -684,9 +647,9 @@ $pendingJobPostings = getPendingJobPostings($conn);
             <div class="dashboard-card pending-employers-list">
                 <h2>Pending Employer Approvals</h2>
                 <?php if (empty($pendingEmployers)): ?>
-                    <p>No pending employer applications</p>
+                    <p id="no-pending-employers">No pending employer applications</p>
                 <?php else: ?>
-                    <table>
+                    <table id="pending-employers-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -697,16 +660,13 @@ $pendingJobPostings = getPendingJobPostings($conn);
                         </thead>
                         <tbody>
                             <?php foreach ($pendingEmployers as $employer): ?>
-                                <tr>
+                                <tr data-employer-id="<?php echo $employer['id']; ?>">
                                     <td><?php echo htmlspecialchars($employer['fname'] . ' ' . $employer['lname']); ?></td>
                                     <td><?php echo htmlspecialchars($employer['company_name']); ?></td>
                                     <td><?php echo htmlspecialchars($employer['email']); ?></td>
                                     <td>
-                                        <form method="POST" style="display:inline;">
-                                            <input type="hidden" name="employer_id" value="<?php echo $employer['id']; ?>">
-                                            <button type="submit" name="approve_employer" class="btn btn-success">Approve</button>
-                                            <button type="submit" name="reject_employer" class="btn btn-danger">Reject</button>
-                                        </form>
+                                        <button class="btn btn-success approve-employer" data-id="<?php echo $employer['id']; ?>">Approve</button>
+                                        <button class="btn btn-danger reject-employer" data-id="<?php echo $employer['id']; ?>">Reject</button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -719,29 +679,36 @@ $pendingJobPostings = getPendingJobPostings($conn);
             <div class="dashboard-card pending-job-postings-list">
                 <h2>Pending Job Postings</h2>
                 <?php if (empty($pendingJobPostings)): ?>
-                    <p>No pending job postings</p>
+                    <p id="no-pending-job-postings">No pending job postings</p>
                 <?php else: ?>
-                    <table>
+                    <table id="pending-job-postings-table">
                         <thead>
                             <tr>
                                 <th>Title</th>
                                 <th>Company</th>
                                 <th>Location</th>
+                                <th>Job Type</th>
+                                <th>Subject</th>
+                                <th>Salary</th>
+                                <th>Deadline</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($pendingJobPostings as $jobPosting): ?>
-                                <tr>
+                                <tr data-job-id="<?php echo $jobPosting['id']; ?>">
                                     <td><?php echo htmlspecialchars($jobPosting['title']); ?></td>
                                     <td><?php echo htmlspecialchars($jobPosting['employer_company']); ?></td>
                                     <td><?php echo htmlspecialchars($jobPosting['location']); ?></td>
+                                    <td><?php echo htmlspecialchars($jobPosting['job_type']); ?></td>
+                                    <td><?php echo htmlspecialchars($jobPosting['job_subject']); ?></td>
+                                    <td>$<?php echo number_format($jobPosting['salary'], 2); ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($jobPosting['application_deadline'])); ?></td>
                                     <td>
-                                        <form method="POST" style="display:flex; gap:10px;">
-                                            <input type="hidden" name="job_posting_id" value="<?php echo $jobPosting['id']; ?>">
-                                            <button type="submit" name="approve_job_posting" class="btn btn-success">Approve</button>
-                                            <button type="submit" name="reject_job_posting" class="btn btn-danger">Reject</button>
-                                        </form>
+                                        <div style="display:flex; gap:10px;">
+                                            <button class="btn btn-success approve-job-posting" data-id="<?php echo $jobPosting['id']; ?>">Approve</button>
+                                            <button class="btn btn-danger reject-job-posting" data-id="<?php echo $jobPosting['id']; ?>">Reject</button>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -756,7 +723,7 @@ $pendingJobPostings = getPendingJobPostings($conn);
     <script>
         // User Chart
         const ctx = document.getElementById('userChart');
-        new Chart(ctx, {
+        let userChart = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: ['Students', 'Employers', 'Admins', 'Pending Employers', 'Pending Job Postings'],
@@ -783,6 +750,242 @@ $pendingJobPostings = getPendingJobPostings($conn);
                     }
                 }
             }
+        });
+
+        // Show alert function
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Update statistics function
+        function updateStats(pendingEmployers, pendingJobPostings) {
+            document.getElementById('pending-employers-count').textContent = pendingEmployers;
+            document.getElementById('pending-job-postings-count').textContent = pendingJobPostings;
+            
+            // Update chart data
+            userChart.data.datasets[0].data[3] = pendingEmployers;
+            userChart.data.datasets[0].data[4] = pendingJobPostings;
+            userChart.update();
+        }
+
+        // Handle employer approval
+        document.querySelectorAll('.approve-employer').forEach(button => {
+            button.addEventListener('click', function() {
+                const employerId = this.getAttribute('data-id');
+                const row = document.querySelector(`tr[data-employer-id="${employerId}"]`);
+                
+                // AJAX request
+                const formData = new FormData();
+                formData.append('action', 'approve_employer');
+                formData.append('id', employerId);
+                
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row
+                        row.remove();
+                        
+                        // Update stats
+                        const pendingEmployers = parseInt(document.getElementById('pending-employers-count').textContent) - 1;
+                        updateStats(pendingEmployers, parseInt(document.getElementById('pending-job-postings-count').textContent));
+                        
+                        // Show success message
+                        showAlert(data.message);
+                        
+                        // Check if table is empty
+                        if (document.querySelectorAll('#pending-employers-table tbody tr').length === 0) {
+                            document.getElementById('pending-employers-table').style.display = 'none';
+                            const noEmployers = document.createElement('p');
+                            noEmployers.id = 'no-pending-employers';
+                            noEmployers.textContent = 'No pending employer applications';
+                            document.querySelector('.pending-employers-list').appendChild(noEmployers);
+                        }
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    showAlert('An error occurred. Please try again.', 'danger');
+                });
+            });
+        });
+
+        // Handle job posting approval
+        document.querySelectorAll('.approve-job-posting').forEach(button => {
+            button.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-id');
+                const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+                
+                // AJAX request
+                const formData = new FormData();
+                formData.append('action', 'approve_job_posting');
+                formData.append('id', jobId);
+                
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row
+                        row.remove();
+                        
+                        // Update stats
+                        const pendingJobPostings = parseInt(document.getElementById('pending-job-postings-count').textContent) - 1;
+                        updateStats(parseInt(document.getElementById('pending-employers-count').textContent), pendingJobPostings);
+                        
+                        // Show success message
+                        showAlert(data.message);
+                        
+                        // Check if table is empty
+                        if (document.querySelectorAll('#pending-job-postings-table tbody tr').length === 0) {
+                            document.getElementById('pending-job-postings-table').style.display = 'none';
+                            const noJobs = document.createElement('p');
+                            noJobs.id = 'no-pending-job-postings';
+                            noJobs.textContent = 'No pending job postings';
+                            document.querySelector('.pending-job-postings-list').appendChild(noJobs);
+                        }
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    showAlert('An error occurred. Please try again.', 'danger');
+                });
+            });
+        });
+
+        // Open rejection modal for employer
+        document.querySelectorAll('.reject-employer').forEach(button => {
+            button.addEventListener('click', function() {
+                const employerId = this.getAttribute('data-id');
+                document.getElementById('rejection-id').value = employerId;
+                document.getElementById('rejection-type').value = 'employer';
+                $('#rejectionModal').modal('show');
+            });
+        });
+
+        // Open rejection modal for job posting
+        document.querySelectorAll('.reject-job-posting').forEach(button => {
+            button.addEventListener('click', function() {
+                const jobId = this.getAttribute('data-id');
+                document.getElementById('rejection-id').value = jobId;
+                document.getElementById('rejection-type').value = 'job_posting';
+                $('#rejectionModal').modal('show');
+            });
+        });
+
+        // Handle rejection confirmation
+        document.getElementById('confirm-rejection').addEventListener('click', function() {
+            const id = document.getElementById('rejection-id').value;
+            const type = document.getElementById('rejection-type').value;
+            const reason = document.getElementById('rejection-reason').value;
+            
+            if (!reason.trim()) {
+                alert('Please provide a reason for rejection');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('reason', reason);
+            
+            if (type === 'employer') {
+                formData.append('action', 'reject_employer');
+                const row = document.querySelector(`tr[data-employer-id="${id}"]`);
+                
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row
+                        row.remove();
+                        
+                        // Update stats
+                        const pendingEmployers = parseInt(document.getElementById('pending-employers-count').textContent) - 1;
+                        updateStats(pendingEmployers, parseInt(document.getElementById('pending-job-postings-count').textContent));
+                        
+                        // Show success message
+                        showAlert(data.message);
+                        
+                        // Check if table is empty
+                        if (document.querySelectorAll('#pending-employers-table tbody tr').length === 0) {
+                            document.getElementById('pending-employers-table').style.display = 'none';
+                            const noEmployers = document.createElement('p');
+                            noEmployers.id = 'no-pending-employers';
+                            noEmployers.textContent = 'No pending employer applications';
+                            document.querySelector('.pending-employers-list').appendChild(noEmployers);
+                        }
+                        
+                        $('#rejectionModal').modal('hide');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    showAlert('An error occurred. Please try again.', 'danger');
+                });
+            } else if (type === 'job_posting') {
+                formData.append('action', 'reject_job_posting');
+                const row = document.querySelector(`tr[data-job-id="${id}"]`);
+                
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row
+                        row.remove();
+                        
+                        // Update stats
+                        const pendingJobPostings = parseInt(document.getElementById('pending-job-postings-count').textContent) - 1;
+                        updateStats(parseInt(document.getElementById('pending-employers-count').textContent), pendingJobPostings);
+                        
+                        // Show success message
+                        showAlert(data.message);
+                        
+                        // Check if table is empty
+                        if (document.querySelectorAll('#pending-job-postings-table tbody tr').length === 0) {
+                            document.getElementById('pending-job-postings-table').style.display = 'none';
+                            const noJobs = document.createElement('p');
+                            noJobs.id = 'no-pending-job-postings';
+                            noJobs.textContent = 'No pending job postings';
+                            document.querySelector('.pending-job-postings-list').appendChild(noJobs);
+                        }
+                        
+                        $('#rejectionModal').modal('hide');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    showAlert('An error occurred. Please try again.', 'danger');
+                });
+            }
+            
+            // Clear the reason field
+            document.getElementById('rejection-reason').value = '';
         });
     </script>
 

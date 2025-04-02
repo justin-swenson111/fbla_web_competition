@@ -251,6 +251,7 @@ $userType = $_SESSION['user_type'] ?? null;
         background-size: cover;
         background-position: center;
         position: relative;
+        min-height: 0; /* Prevents the background from forcing extra height */
       }
 
       /* Signup Container */
@@ -347,6 +348,7 @@ $userType = $_SESSION['user_type'] ?? null;
         color: white;
         font-family: Arial, sans-serif;
         width: 100%;
+        margin-top: auto; /* This pushes the footer to the bottom */
       }
 
       .footer-content {
@@ -378,13 +380,25 @@ $userType = $_SESSION['user_type'] ?? null;
         margin-top: 20px;
       }
 
+      /* Add these new styles to fix the white bar issue */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Use viewport height to ensure full coverage */
+      }
+
       /* Tablet and Mobile Responsiveness */
       @media screen and (max-width: 768px) {
-
         /* Signup container adjustments */
         .signup-container {
           width: 90%;
-          margin: 120px auto 40px; /* Increased top margin to account for navbar */
+          margin: 10vh auto 40px; /* Reduced from 20vh to prevent overflow */
           padding: 20px;
         }
 
@@ -426,11 +440,10 @@ $userType = $_SESSION['user_type'] ?? null;
 
       /* Small Mobile Devices */
       @media screen and (max-width: 480px) {
-
         /* Signup container adjustments */
         .signup-container {
           width: 95%;
-          margin: 100px auto 20px;
+          margin: 5vh auto 20px; /* Further reduced for very small screens */
           padding: 15px;
         }
 
@@ -469,6 +482,8 @@ $userType = $_SESSION['user_type'] ?? null;
         /* Background section adjustment */
         .background {
           padding: 20px;
+          flex-grow: 1;
+          min-height: unset; /* Remove any minimum height constraints */
         }
 
         /* Improve touch targets */
@@ -480,9 +495,9 @@ $userType = $_SESSION['user_type'] ?? null;
       }
 
       .error-msg {
-          color: red;
-          font-weight: bold;
-          margin-top: 10px;
+        color: red;
+        font-weight: bold;
+        margin-top: 10px;
       }
     </style>
   </head>
@@ -496,6 +511,7 @@ $userType = $_SESSION['user_type'] ?? null;
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
+                    <a href="scholarships.php">Scholarships</a>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>

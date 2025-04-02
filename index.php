@@ -698,6 +698,7 @@ if ($conn->connect_error) {
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
+                    <a href="scholarships.php">Scholarships</a>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>

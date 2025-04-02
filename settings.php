@@ -377,58 +377,89 @@ $stmt->close();
 
         .settings-container {
             max-width: 800px;
-            margin: 100px auto;
+            margin: 50px auto;
             padding: 20px;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
         .settings-section {
             background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .settings-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
         }
 
         .settings-section h2 {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: #f57f17;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .settings-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: #f57f17;
+            border-radius: 2px;
         }
 
         .form-group {
-            margin-bottom: 20px;
-            max-width: 100%; /* Ensure form group doesn't exceed container */
+            margin-bottom: 25px;
+            max-width: 100%;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+            margin-bottom: 10px;
+            font-weight: 600;
             color: #333;
+            font-size: 16px;
         }
 
         .form-group input[type="text"],
         .form-group input[type="url"],
         .form-group input[type="password"],
         .form-group textarea {
-            width: calc(100% - 24px); /* Subtract padding from width */
-            max-width: 100%;
-            padding: 12px;
+            width: 100%;
+            padding: 14px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
             background-color: white;
-            box-sizing: border-box; /* Include padding in width calculation */
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f57f17;
+            box-shadow: 0 0 0 2px rgba(245, 127, 23, 0.2);
         }
 
         .form-group textarea {
             height: 120px;
             resize: vertical;
+            line-height: 1.5;
         }
 
         .form-group input[type="file"] {
             display: block;
-            margin-top: 8px;
+            margin-top: 10px;
             max-width: 100%;
+            padding: 10px 0;
         }
 
         .profile-picture {
@@ -436,74 +467,161 @@ $stmt->close();
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 20px;
-            border: 3px solid #f57f17;
+            margin-bottom: 25px;
+            border: 4px solid #f57f17;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
         }
 
         .file-info {
             font-size: 14px;
             color: #666;
-            margin-top: 5px;
+            margin-top: 8px;
         }
 
         .success-message {
             background-color: #d4edda;
             color: #155724;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #155724;
         }
 
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #721c24;
         }
 
         .submit-button {
             background-color: #f57f17;
             color: white;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .submit-button:hover {
             background-color: #e65100;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
         }
 
         .logout-button {
             background-color: #dc3545;
             color: white;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 20px;
-            transition: background-color 0.3s;
+            font-weight: 600;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .logout-button:hover {
             background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .logout-button:active {
+            transform: translateY(0);
         }
 
         .password-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
         }
 
         .password-requirements {
             font-size: 14px;
             color: #666;
-            margin-top: 5px;
+            margin-top: 8px;
             margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(245, 127, 23, 0.05);
+            border-radius: 6px;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 768px) {
+            .settings-container {
+                padding: 15px;
+                margin: 30px auto;
+            }
+            
+            .settings-section {
+                padding: 20px;
+            }
+            
+            .settings-section h2 {
+                font-size: 22px;
+            }
+            
+            .form-group input[type="text"],
+            .form-group input[type="url"],
+            .form-group input[type="password"],
+            .form-group textarea {
+                padding: 12px;
+            }
+            
+            .submit-button,
+            .logout-button {
+                padding: 12px 20px;
+                width: 100%;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .settings-section {
+                padding: 15px;
+            }
+            
+            .settings-section h2 {
+                font-size: 20px;
+            }
+            
+            .profile-picture {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            .form-group label {
+                font-size: 15px;
+            }
+            
+            .form-group input[type="text"],
+            .form-group input[type="url"],
+            .form-group input[type="password"],
+            .form-group textarea {
+                padding: 10px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
@@ -517,6 +635,7 @@ $stmt->close();
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
+                    <a href="scholarships.php">Scholarships</a>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>

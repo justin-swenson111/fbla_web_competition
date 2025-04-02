@@ -85,16 +85,73 @@ if (isset($_GET['ajax'])) {
     $search = isset($_GET['search']) ? $_GET['search'] : '';
     $location = isset($_GET['location']) ? $_GET['location'] : '';
     $salary_range = isset($_GET['salary']) ? $_GET['salary'] : '';
-    $job_type = isset($_GET['jobType']) ? $_GET['jobType'] : '';
-    $job_subject = isset($_GET['jobSubject']) ? $_GET['jobSubject'] : ''; // New subject filter
+    $job_type = isset($_GET['job_type']) ? $_GET['job_type'] : '';  // Fixed parameter name
+    $job_subject = isset($_GET['subject']) ? $_GET['subject'] : '';  // Fixed parameter name
 
-    // Build the query with employer and subject information
+    // First, we need to count the total number of matching records for pagination
+    $count_query = "SELECT COUNT(*) as total FROM job_postings jp 
+                  LEFT JOIN employers e ON jp.employer_id = e.id
+                  WHERE jp.is_active = 1";
+    
+    $count_params = [];
+    $count_types = "";
+
+    if ($search) {
+        $count_query .= " AND (jp.title LIKE ? OR jp.description LIKE ?)";
+        $search_param = "%$search%";
+        array_push($count_params, $search_param, $search_param);
+        $count_types .= "ss";
+    }
+
+    if ($location) {
+        $count_query .= " AND jp.location = ?";
+        array_push($count_params, $location);
+        $count_types .= "s";
+    }
+
+    if ($job_type) {
+        $count_query .= " AND jp.job_type = ?";
+        array_push($count_params, $job_type);
+        $count_types .= "s";
+    }
+
+    if ($job_subject) {
+        $count_query .= " AND jp.job_subject = ?";
+        array_push($count_params, $job_subject);
+        $count_types .= "s";
+    }
+
+    if ($salary_range) {
+        $salary_parts = explode('-', $salary_range);
+        if (count($salary_parts) == 2) {
+            $count_query .= " AND jp.salary BETWEEN ? AND ?";
+            array_push($count_params, (float)$salary_parts[0], (float)$salary_parts[1]);
+            $count_types .= "dd";
+        } elseif (strpos($salary_range, '+') !== false) {
+            $count_query .= " AND jp.salary >= ?";
+            array_push($count_params, (float)str_replace('+', '', $salary_range));
+            $count_types .= "d";
+        }
+    }
+
+    $count_stmt = $conn->prepare($count_query);
+    if (!empty($count_params)) {
+        $count_stmt->bind_param($count_types, ...$count_params);
+    }
+    $count_stmt->execute();
+    $count_result = $count_stmt->get_result();
+    $count_row = $count_result->fetch_assoc();
+    $total_records = $count_row['total'];
+    $total_pages = ceil($total_records / $limit);
+
+    // Build the main query with employer and subject information
     $query = "SELECT jp.*, e.fname AS employer_fname, e.lname AS employer_lname, 
           e.profile_picture, e.industry, e.company_location, e.company_description, 
           e.company_website, jp.job_subject
           FROM job_postings jp 
           LEFT JOIN employers e ON jp.employer_id = e.id
           WHERE jp.is_active = 1";
+    
     $params = [];
     $types = "";
 
@@ -117,7 +174,7 @@ if (isset($_GET['ajax'])) {
         $types .= "s";
     }
 
-    if ($job_subject) { // New subject filter
+    if ($job_subject) {
         $query .= " AND jp.job_subject = ?";
         array_push($params, $job_subject);
         $types .= "s";
@@ -147,12 +204,6 @@ if (isset($_GET['ajax'])) {
 
     $stmt->execute();
     $result = $stmt->get_result();
-    
-    // Get total number of records for pagination
-    $total_result = $conn->query("SELECT FOUND_ROWS()");
-    $total_row = $total_result->fetch_row();
-    $total_records = $total_row[0];
-    $total_pages = ceil($total_records / $limit);
     
     $jobs = [];
 
@@ -405,6 +456,7 @@ if (isset($_GET['ajax'])) {
             align-items: flex-start;
             gap: 1rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
         .employer-profile {
@@ -434,6 +486,7 @@ if (isset($_GET['ajax'])) {
             top: 100%;
             left: 0;
             width: 300px;
+            max-width: 90vw;
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -487,6 +540,7 @@ if (isset($_GET['ajax'])) {
 
         .job-title-section {
             flex: 1;
+            min-width: 250px;
         }
 
         .job-title-section h3 {
@@ -561,6 +615,7 @@ if (isset($_GET['ajax'])) {
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .pagination a {
@@ -569,6 +624,7 @@ if (isset($_GET['ajax'])) {
             border-radius: 5px;
             text-decoration: none;
             color: #007bff;
+            margin-bottom: 5px;
         }
 
         .pagination a.active {
@@ -606,6 +662,11 @@ if (isset($_GET['ajax'])) {
             color: #721c24;
         }
 
+        .status-reviewed {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
         .loading {
             text-align: center;
             padding: 20px;
@@ -615,11 +676,11 @@ if (isset($_GET['ajax'])) {
 
         /* General Layout Consistency */
         .bookmarked-jobs {
-            background-color: #fff; /* White background to match other sections */
-            border-radius: 8px; /* Smooth rounded corners */
-            padding: 20px; /* Adequate padding for spacing */
-            margin: 20px 0; /* Consistent margin with other sections */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light box shadow for subtle depth */
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .bookmarked-jobs h2 {
@@ -634,35 +695,38 @@ if (isset($_GET['ajax'])) {
 
         /* Job Posting Cards Consistency */
         #bookmarked-jobs-list .job-posting {
-            background-color: #fff; /* White background */
-            border: 1px solid #ddd; /* Light border for consistency */
-            border-radius: 8px; /* Rounded corners */
-            padding: 15px; /* Adequate padding inside the card */
-            margin-bottom: 15px; /* Margin for spacing between job cards */
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Light shadow for depth */
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         /* Hover effect for job cards */
         #bookmarked-jobs-list .job-posting:hover {
-            transform: translateY(-2px); /* Slight lift effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Darker shadow for hover */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         /* Job Title Styling */
         #bookmarked-jobs-list h3 {
             margin: 0;
             font-size: 16px;
-            color: #333; /* Dark text for good contrast */
+            color: #333;
         }
 
         /* Actions Section Styling */
         #bookmarked-jobs-list .job-actions {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         /* View Job Button Styling */
@@ -703,7 +767,7 @@ if (isset($_GET['ajax'])) {
 
         /* Icon Color for Remove Bookmark */
         #bookmarked-jobs-list .remove-bookmark-btn i {
-            color: #FFCC00; /* Yellow icon */
+            color: #FFCC00;
         }
 
         /* Empty State for Bookmarked Jobs */
@@ -712,57 +776,137 @@ if (isset($_GET['ajax'])) {
             padding: 30px;
             color: #666;
             font-style: italic;
-            background-color: #f9f9f9; /* Light background */
+            background-color: #f9f9f9;
             border-radius: 8px;
         }
 
         /* Bookmark Button Styling */
         .bookmark-btn {
-            border: none; /* Remove border */
-            background-color: transparent; /* Transparent background */
-            padding: 5px; /* Smaller padding for better icon size */
+            border: none;
+            background-color: transparent;
+            padding: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
-            font-size: 24px; /* Adjusts the size of the icon */
+            font-size: 24px;
         }
 
         /* Bookmark Button Hover */
         .bookmark-btn:hover {
-            transform: scale(1.1); /* Slightly increase button size on hover */
+            transform: scale(1.1);
         }
 
         /* Bookmark Icon Color */
         .bookmark-btn i {
-            color: #FFCC00; /* Default icon color (yellow) */
+            color: #FFCC00;
             transition: color 0.3s ease;
         }
 
         /* Active Bookmark Icon Color */
         .bookmark-btn:active i {
-            color: #FFD700; /* A slightly brighter yellow when clicked */
+            color: #FFD700;
         }
 
         .job-subject {
-            top: 10px;
-            right: 10px;
-            background-color: #4CAF50; /* Green background */
+            background-color: #4CAF50;
             color: white;
             font-weight: bold;
-            padding: 5px 15px; /* Adjust padding to provide more space */
-            border-radius: 20px; /* Rounded corners */
+            padding: 5px 15px;
+            border-radius: 20px;
             font-size: 14px;
-            text-transform: uppercase; /* Capitalize text */
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); /* Slight shadow effect */
+            text-transform: uppercase;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            white-space: nowrap; /* Prevent text from wrapping */
-            z-index: 10; /* Ensure it's on top of other elements */
+            white-space: nowrap;
+            z-index: 10;
+            margin-bottom: 10px;
         }
 
         .job-subject .subject-text {
-            font-size: 14px; /* Adjust font size */
+            font-size: 14px;
             text-align: center;
+        }
+
+        /* Media Queries for Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .filters {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar, select {
+                width: 100%;
+            }
+            
+            .job-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .job-title-section {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .profile-hover-card {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            
+            .profile-image-container:hover .profile-hover-card {
+                transform: translateX(-50%);
+            }
+            
+            #bookmarked-jobs-list .job-posting {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            #bookmarked-jobs-list .job-actions {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .job-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .pagination {
+                gap: 5px;
+            }
+            
+            .pagination a {
+                padding: 5px 10px;
+                font-size: 0.9em;
+            }
+            
+            .job-posting {
+                padding: 15px;
+            }
+            
+            .employer-profile-pic {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .profile-hover-card {
+                width: 90vw;
+                max-width: 300px;
+            }
+            
+            .apply-button {
+                width: 100%;
+            }
         }
 
     </style>
@@ -897,16 +1041,19 @@ if (isset($_GET['ajax'])) {
     </div>
 
     <script>
+        // Global variables for filter state and pagination
         const filterState = {
             search: '',
             location: '',
             salary: '',
             jobType: '',
-            totalPages: 1 // Initialize total pages
+            subject: '',
+            totalPages: 1
         };
 
-        let currentPage = 1; // Track the current page
+        let currentPage = 1;
 
+        // Debounce function to limit the rate of function calls
         function debounce(func, wait) {
             let timeout;
             return function (...args) {
@@ -915,151 +1062,141 @@ if (isset($_GET['ajax'])) {
             };
         }
 
-        function fetchFilteredJobs(page = 1) {
+        // Main function to fetch and display jobs with filters
+        async function fetchFilteredJobs(page = 1) {
             currentPage = page;
-
             const jobList = document.getElementById('job-list');
             if (!jobList) {
                 console.error('Job list container not found');
                 return;
             }
 
-            // Show loading state
             jobList.innerHTML = '<div class="loading">Loading jobs...</div>';
-
-            // Build query parameters
             const params = new URLSearchParams({
                 ajax: 'true',
                 page,
-                ...filterState
+                search: filterState.search,
+                location: filterState.location,
+                salary: filterState.salary,
+                job_type: filterState.jobType,
+                subject: filterState.subject
             });
 
-            fetch(`?${params.toString()}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to fetch jobs');
-                    return response.json();
-                })
-                .then(async data => {
-                    const maxJobsPerPage = 10;
+            // For debugging
+            console.log("Fetching jobs with filters:", filterState);
 
-                    if (!data.jobs || data.jobs.length === 0) {
-                        jobList.innerHTML = "<div class='no-jobs'>No job postings match your filters.</div>";
-                        return;
-                    }
+            try {
+                const response = await fetch(`?${params.toString()}`);
+                if (!response.ok) throw new Error('Failed to fetch jobs');
+                const data = await response.json();
 
-                    // Filter out jobs the user has already applied to
-                    let availableJobs = data.jobs.filter(job => !job.already_applied);
+                let availableJobs = data.jobs.filter(job => !job.already_applied);
+                
+                if (availableJobs.length === 0) {
+                    jobList.innerHTML = "<div class='no-jobs'>No job postings match your filters.</div>";
+                    return;
+                }
+                
+                jobList.innerHTML = renderJobListings(availableJobs);
+                
+                // Update the pagination controls dynamically
+                filterState.totalPages = data.total_pages || 1;
+                jobList.innerHTML += createPaginationControls(data.current_page || 1, data.total_pages || 1);
+                
+                attachFormListeners();
+                
+                // After loading jobs, also remove any bookmarks for jobs that have been applied to
+                if (data.all_applied_job_ids) {
+                    removeAppliedJobsFromBookmarks(data.all_applied_job_ids);
+                }
+            } catch (error) {
+                console.error(error);
+                jobList.innerHTML = "<div class='error'>Failed to fetch jobs. Please try again later.</div>";
+            }
+        }
 
-                    // Fetch additional jobs if needed
-                    while (availableJobs.length < maxJobsPerPage && data.hasMoreJobs) {
-                        try {
-                            const offset = availableJobs.length;
-                            const moreResponse = await fetch(`?${params.toString()}&offset=${offset}`);
-                            if (!moreResponse.ok) throw new Error('Failed to fetch additional jobs');
-                            const moreData = await moreResponse.json();
-
-                            if (moreData.jobs && moreData.jobs.length > 0) {
-                                availableJobs = availableJobs.concat(
-                                    moreData.jobs.filter(job => !job.already_applied)
-                                );
-                            }
-                        } catch (error) {
-                            console.error('Error fetching additional jobs:', error);
-                            break;
-                        }
-                    }
-
-                    if (availableJobs.length === 0) {
-                        jobList.innerHTML = "<div class='no-jobs'>You have applied to all available jobs matching your filters.</div>";
-                        return;
-                    }
-
-                    const jobHtml = availableJobs.slice(0, maxJobsPerPage).map(job => {
-                        // Get the bookmarked status
-                        const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs')) || [];
-                        const isBookmarked = bookmarks.some(bookmark => bookmark.id === job.id);
-                        
-                        return `
-                        <div class="job-posting" data-job-id="${job.id}">
-                            <div class="job-header">
-                                <div class="employer-profile">
-                                    <div class="profile-image-container">
-                                        <img src="${escapeHtml(job.profile_picture || './media/default-image.png')}" 
-                                            alt="Employer Profile" 
-                                            class="employer-profile-pic">
-                                        <div class="profile-hover-card">
-                                            <h4>${escapeHtml(job.company_name)} (${escapeHtml(job.employer_fname)} ${escapeHtml(job.employer_lname)})</h4>
-                                            <p><strong>Industry:</strong> ${escapeHtml(job.industry || 'Not specified')}</p>
-                                            <p><strong>Location:</strong> ${escapeHtml(job.company_location || 'Not specified')}</p>
-                                            <p class="company-description">${escapeHtml(job.company_description || 'No description available')}</p>
-                                            ${job.company_website ? `
-                                                <a href="${escapeHtml(job.company_website)}" 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                class="company-website">
-                                                    Visit Website
-                                                </a>
-                                            ` : ''}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="job-title-section">
-                                    <h3>${escapeHtml(job.title)} at ${escapeHtml(job.company_name)}</h3>
-                                    <div class="job-meta">
-                                        <div class="meta-item"><span>💰 $${job.formatted_salary}</span></div>
-                                        <div class="meta-item"><span>📍 ${escapeHtml(job.location)}</span></div>
-                                        <div class="meta-item"><span>🕒 ${escapeHtml(job.job_type)}</span></div>
-                                        <div class="meta-item"><span>📅 Deadline: ${job.formatted_deadline}</span></div>
-                                    </div>
-                                </div>
-                                <!-- Job Subject on Top Right -->
-                                <div class="job-subject">
-                                    <span class="subject-text">${escapeHtml(job.job_subject || 'General')}</span>
-                                </div>
-                                <!-- Bookmark Icon -->
-                                <div class="bookmark-button">
-                                    <button class="bookmark-btn" data-job-id="${job.id}" onclick="toggleBookmark(${job.id}, '${escapeHtml(job.title)}', '${escapeHtml(job.company_name)}')">
-                                        <i class="${isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark'}"></i>
-                                    </button>
+        // Function to render job listings HTML
+        function renderJobListings(jobs) {
+            return jobs.map(job => {
+                // Get the bookmarked status
+                const bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs')) || [];
+                const isBookmarked = bookmarks.some(bookmark => bookmark.id === job.id);
+                
+                return `
+                <div class="job-posting" data-job-id="${job.id}">
+                    <div class="job-header">
+                        <div class="employer-profile">
+                            <div class="profile-image-container">
+                                <img src="${escapeHtml(job.profile_picture || './media/default-image.png')}" 
+                                    alt="Employer Profile" 
+                                    class="employer-profile-pic">
+                                <div class="profile-hover-card">
+                                    <h4>${escapeHtml(job.company_name)} (${escapeHtml(job.employer_fname)} ${escapeHtml(job.employer_lname)})</h4>
+                                    <p><strong>Industry:</strong> ${escapeHtml(job.industry || 'Not specified')}</p>
+                                    <p><strong>Location:</strong> ${escapeHtml(job.company_location || 'Not specified')}</p>
+                                    <p class="company-description">${escapeHtml(job.company_description || 'No description available')}</p>
+                                    ${job.company_website ? `
+                                        <a href="${escapeHtml(job.company_website)}" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        class="company-website">
+                                            Visit Website
+                                        </a>
+                                    ` : ''}
                                 </div>
                             </div>
-                            <div class="job-details">
-                                <p><strong>Description:</strong><br>${escapeHtml(job.description).replace(/\n/g, '<br>')}</p>
-                                <p><strong>Requirements:</strong><br>${escapeHtml(job.requirements).replace(/\n/g, '<br>')}</p>
-                            </div>
-                            <form class="application-form" method="POST" action="apply_job.php" enctype="multipart/form-data">
-                                <input type="hidden" name="job_posting_id" value="${job.id}">
-                                <textarea name="cover_letter" placeholder="Write your application message..." required></textarea>
-                                <div class="file-upload">
-                                    <label for="resume-${job.id}">Upload Resume (PDF, DOC, DOCX):</label>
-                                    <input type="file" name="resume" id="resume-${job.id}" accept=".pdf,.doc,.docx" required>
-                                </div>
-                                <button type="submit" class="apply-button">Apply Now</button>
-                            </form>
                         </div>
-                        `;
-                    }).join('');
-
-                    // Update the job list and pagination controls
-                    jobList.innerHTML = jobHtml;
-
-                    // Update the pagination controls dynamically
-                    filterState.totalPages = data.total_pages;
-                    jobList.innerHTML += createPaginationControls(data.current_page, data.total_pages);
-
-                    attachFormListeners();
-                })
-                .catch(error => {
-                    console.error(error);
-                    jobList.innerHTML = "<div class='error'>Failed to fetch jobs. Please try again later.</div>";
-                });
+                        <div class="job-title-section">
+                            <h3>${escapeHtml(job.title)} at ${escapeHtml(job.company_name)}</h3>
+                            <div class="job-meta">
+                                <div class="meta-item"><span>💰 $${job.formatted_salary}</span></div>
+                                <div class="meta-item"><span>📍 ${escapeHtml(job.location)}</span></div>
+                                <div class="meta-item"><span>🕒 ${escapeHtml(job.job_type)}</span></div>
+                                <div class="meta-item"><span>📅 Deadline: ${job.formatted_deadline}</span></div>
+                            </div>
+                        </div>
+                        <!-- Job Subject on Top Right -->
+                        <div class="job-subject">
+                            <span class="subject-text">${escapeHtml(job.job_subject || 'General')}</span>
+                        </div>
+                        <!-- Bookmark Icon -->
+                        <div class="bookmark-button">
+                            <button class="bookmark-btn" data-job-id="${job.id}" onclick="toggleBookmark(${job.id}, '${escapeHtml(job.title)}', '${escapeHtml(job.company_name)}')">
+                                <i class="${isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="job-details">
+                        <p><strong>Description:</strong><br>${escapeHtml(job.description).replace(/\n/g, '<br>')}</p>
+                        <p><strong>Requirements:</strong><br>${escapeHtml(job.requirements).replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <form class="application-form" method="POST" action="apply_job.php" enctype="multipart/form-data">
+                        <input type="hidden" name="job_posting_id" value="${job.id}">
+                        <textarea name="cover_letter" placeholder="Write your application message..." required></textarea>
+                        <div class="file-upload">
+                            <label for="resume-${job.id}">Upload Resume (PDF, DOC, DOCX):</label>
+                            <input type="file" name="resume" id="resume-${job.id}" accept=".pdf,.doc,.docx" required>
+                        </div>
+                        <button type="submit" class="apply-button">Apply Now</button>
+                    </form>
+                </div>
+                `;
+            }).join('');
         }
 
+        // Function to update filter state and fetch jobs
         function updateFilters(filterType, value) {
+            // Update the correct filter state property
             filterState[filterType] = value;
-            fetchFilteredJobs(1); // Reset to first page when filters change
+            
+            // For debugging
+            console.log(`Filter updated: ${filterType} = ${value}`);
+            
+            // Reset to first page when filters change
+            fetchFilteredJobs(1);
         }
 
+        // Function to create pagination controls
         function createPaginationControls(currentPage, totalPages) {
             if (totalPages <= 1) return ''; // No pagination needed if there is only one page
 
@@ -1091,6 +1228,7 @@ if (isset($_GET['ajax'])) {
             return paginationHtml;
         }
 
+        // Function to handle page changes
         function changePage(page) {
             // Prevent navigation if the requested page is invalid
             if (page < 1 || page > filterState.totalPages) return;
@@ -1099,11 +1237,13 @@ if (isset($_GET['ajax'])) {
             fetchFilteredJobs(page);
         }
 
+        // Attach form submission listeners with bookmark removal logic
         function attachFormListeners() {
             document.querySelectorAll('.application-form').forEach(form => {
                 form.addEventListener('submit', function (e) {
                     const message = this.querySelector('textarea').value.trim();
                     const resume = this.querySelector('input[type="file"]').files[0];
+                    const jobId = parseInt(this.querySelector('input[name="job_posting_id"]').value, 10);
 
                     if (!message || !resume) {
                         e.preventDefault();
@@ -1119,14 +1259,76 @@ if (isset($_GET['ajax'])) {
                         return;
                     }
 
+                    // Remove the applied job from bookmarks before submitting
+                    let bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs')) || [];
+                    const updatedBookmarks = bookmarks.filter(bookmark => bookmark.id !== jobId);
+                    localStorage.setItem('bookmarkedJobs', JSON.stringify(updatedBookmarks));
+                    
+                    // Update UI to reflect bookmark removal
+                    updateBookmarkedJobs();
+                    
+                    // Store job ID for session storage
+                    sessionStorage.setItem('lastAppliedJobId', jobId);
+                    
                     this.querySelector('button').textContent = 'Submitting...';
                 });
             });
         }
 
+        // Check for successful application after page reload
+        function checkForSuccessfulApplication() {
+            // Check if there's a success message in the URL (after redirect from apply_job.php)
+            const urlParams = new URLSearchParams(window.location.search);
+            const successParam = urlParams.get('application_success');
+            const appliedJobId = sessionStorage.getItem('lastAppliedJobId');
+            
+            if (successParam === 'true' && appliedJobId) {
+                // Remove this job from bookmarks if it exists
+                let bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs')) || [];
+                const jobId = parseInt(appliedJobId, 10);
+                
+                const index = bookmarks.findIndex(job => job.id === jobId);
+                if (index > -1) {
+                    // Remove the bookmark
+                    bookmarks.splice(index, 1);
+                    localStorage.setItem('bookmarkedJobs', JSON.stringify(bookmarks));
+                    console.log(`Removed job ID ${jobId} from bookmarks after successful application`);
+                    
+                    // Update the bookmark display
+                    updateBookmarkedJobs();
+                }
+                
+                // Clear the last applied job ID
+                sessionStorage.removeItem('lastAppliedJobId');
+            }
+        }
+
+        // Function to remove applied jobs from bookmarks
+        function removeAppliedJobsFromBookmarks(appliedJobIds) {
+            if (!Array.isArray(appliedJobIds) || appliedJobIds.length === 0) return;
+            
+            let bookmarks = JSON.parse(localStorage.getItem('bookmarkedJobs')) || [];
+            let hasChanges = false;
+            
+            // Create a new array with non-applied jobs
+            const updatedBookmarks = bookmarks.filter(bookmark => {
+                const isApplied = appliedJobIds.includes(bookmark.id);
+                if (isApplied) hasChanges = true;
+                return !isApplied;
+            });
+            
+            // Only update storage if changes were made
+            if (hasChanges) {
+                localStorage.setItem('bookmarkedJobs', JSON.stringify(updatedBookmarks));
+                console.log('Removed applied jobs from bookmarks');
+                updateBookmarkedJobs();
+            }
+        }
+
+        // Helper function to escape HTML to prevent XSS
         function escapeHtml(unsafe) {
             if (!unsafe) return '';
-            return unsafe
+            return String(unsafe)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
@@ -1134,23 +1336,44 @@ if (isset($_GET['ajax'])) {
                 .replace(/'/g, "&#039;");
         }
 
+        // Initialize job filters and event listeners
         function initializeJobFilters() {
+            // Search input
             const searchInput = document.getElementById('searchJobs');
             if (searchInput) {
                 searchInput.addEventListener('input', debounce(e => updateFilters('search', e.target.value), 300));
             }
 
-            ['location', 'salary', 'jobType'].forEach(filterType => {
-                const filterElement = document.getElementById(`${filterType}Filter`);
-                if (filterElement) {
-                    filterElement.addEventListener('change', e => updateFilters(filterType, e.target.value));
-                }
-            });
+            // Location filter
+            const locationFilter = document.getElementById('locationFilter');
+            if (locationFilter) {
+                locationFilter.addEventListener('change', e => updateFilters('location', e.target.value));
+            }
+            
+            // Salary filter
+            const salaryFilter = document.getElementById('salaryFilter');
+            if (salaryFilter) {
+                salaryFilter.addEventListener('change', e => updateFilters('salary', e.target.value));
+            }
+            
+            // Job type filter
+            const jobTypeFilter = document.getElementById('jobTypeFilter');
+            if (jobTypeFilter) {
+                jobTypeFilter.addEventListener('change', e => updateFilters('jobType', e.target.value));
+            }
+            
+            // Subject filter
+            const subjectFilter = document.getElementById('subjectFilter');
+            if (subjectFilter) {
+                subjectFilter.addEventListener('change', e => updateFilters('subject', e.target.value));
+            }
 
-            fetchFilteredJobs(1); // Initial load
+            // Initial load
+            fetchFilteredJobs(1);
+            
+            // Added debugging info
+            console.log("Job filters initialized");
         }
-
-        document.addEventListener('DOMContentLoaded', initializeJobFilters);
 
         // Bookmark toggle function
         function toggleBookmark(jobId, title, company) {
@@ -1225,19 +1448,18 @@ if (isset($_GET['ajax'])) {
             }
         }
 
-        // Helper function to escape HTML to prevent XSS
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        // Add this CSS for the highlight effect
+        // Initialize everything when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for successful application (after page reload)
+            checkForSuccessfulApplication();
+            
+            // Initialize job filters and load jobs
+            initializeJobFilters();
+            
+            // Initialize bookmarks
+            updateBookmarkedJobs();
+            
+            // Add CSS for highlight effect
             const style = document.createElement('style');
             style.textContent = `
                 @keyframes highlightJob {
@@ -1252,9 +1474,6 @@ if (isset($_GET['ajax'])) {
                 }
             `;
             document.head.appendChild(style);
-            
-            // Initialize bookmarks
-            updateBookmarkedJobs();
             
             // Check for highlighted job from URL parameter
             const urlParams = new URLSearchParams(window.location.search);
@@ -1278,7 +1497,6 @@ if (isset($_GET['ajax'])) {
                 iconElement.className = isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark';
             });
         });
-
     </script>
 </body>
 </html>

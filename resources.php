@@ -197,251 +197,205 @@ if ($conn->connect_error) {
           }
       }
 
-      /* Main container styling */
-      .mainpart {
-        margin-right: 100px;
-        margin-left: 100px;
+      /* Global styles and color palette */
+      :root {
+        --primary-blue: #1a2b4a;
+        --primary-orange: #f57f17;
+        --secondary-orange: #ffb74d;
+        --text-dark: #2c3e50;
+        --text-body: #4a4a4a;
+        --bg-light: #f9f9f9;
+        --white: #ffffff;
       }
 
-      /* Main */
+      /* Main container styling */
+      .mainpart {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 50px;
+        background-color: var(--white);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+      }
+
+      /* Header styling */
       .heading-main {
         display: flex;
         align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid var(--primary-orange);
       }
 
       .heading-main > h1 {
         font-weight: 800;
-        font-size: 60px;
+        font-size: 48px;
+        color: var(--primary-blue);
+        margin-left: 20px;
       }
 
       .heading-main > img {
         width: auto;
         height: 70px;
+        border-radius: 8px;
       }
 
-      /* Styling for the Hiring section */
-      .hiring {
-        margin-bottom: 30px;
-      }
-
-      .hiring > h2 {
-        font-size: 28px; /* Increase the font size */
-        color: #2c3e50; /* A professional dark blue color */
-        margin-bottom: 15px;
-      }
-
-      .hiring p {
-        font-size: 18px; /* Increase font size for readability */
-        line-height: 1.6; /* Add better line spacing */
-        color: #4a4a4a; /* A soft dark gray for better readability */
-      }
-
-      .hiring a {
-        font-size: 18px; /* Make links consistent with the paragraph text */
-        font-weight: bold; /* Highlight the links */
-        color: #f57f17; /* Add an accent color for links */
-        text-decoration: none;
-        margin-top: 10px;
-        display: inline-block;
-        transition: color 0.3s ease;
-      }
-
-      .hiring a:hover {
-        color: #2c3e50; /* Hover effect for links */
-      }
-
-      .hiring img {
-        margin-top: 20px;
-        width: 50%; /* Make the image responsive */
-        height: auto;
-        border-radius: 8px; /* Add rounded corners for a modern look */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
-      }
-
-      /* Add spacing between the hiring section and aside */
+      /* Main content layout */
       .mainbody {
-        gap: 30px; /* Flexbox gap for spacing between elements */
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 40px;
       }
 
-      /* Styling for Resume Tips section */
-      .resume-tips {
+      @media (min-width: 992px) {
+        .mainbody {
+          grid-template-columns: 2fr 1fr;
+        }
+        
+        .hiring, .resume-tips, .interview-prep {
+          grid-column: 1;
+        }
+        
+        .job-resources, .student-stories, .career-events {
+          grid-column: 2;
+        }
+      }
+
+      /* Section styles */
+      .section-container {
+        background-color: var(--white);
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .section-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .hiring, .resume-tips, .job-resources, .interview-prep, .student-stories, .career-events {
         margin-bottom: 30px;
+        position: relative;
+        border-left: 4px solid var(--primary-orange);
+        padding-left: 20px;
       }
 
-      .resume-tips > h2 {
-        font-size: 28px;
-        color: #2c3e50;
+      /* Section headers */
+      .hiring > h2, .resume-tips > h2, .job-resources > h2, 
+      .interview-prep > h2, .student-stories > h2, .career-events > h2 {
+        font-size: 26px;
+        color: var(--primary-blue);
+        margin-bottom: 15px;
+        position: relative;
+        padding-bottom: 10px;
+      }
+
+      .hiring > h2::after, .resume-tips > h2::after, .job-resources > h2::after, 
+      .interview-prep > h2::after, .student-stories > h2::after, .career-events > h2::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--primary-orange);
+      }
+
+      /* Paragraph styling */
+      .hiring p, .resume-tips p, .job-resources p, 
+      .interview-prep p, .student-stories p, .career-events p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text-body);
         margin-bottom: 15px;
       }
 
-      .resume-tips p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #4a4a4a;
+      /* Image styling */
+      .hiring img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        margin-top: 20px;
+        transition: transform 0.3s ease;
       }
 
-      .resume-tips ul {
+      .hiring img:hover {
+        transform: scale(1.02);
+      }
+
+      /* List styling */
+      ul {
+        list-style-position: inside;
+        margin-bottom: 20px;
+      }
+
+      .resume-tips ul, .interview-prep ul {
         list-style-type: disc;
-        margin-left: 20px;
+        padding-left: 20px;
       }
 
-      .resume-tips a {
-        font-size: 18px;
+      .job-resources ul, .student-stories ul, .career-events ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      li {
+        font-size: 16px;
+        line-height: 1.8;
+        margin-bottom: 8px;
+        position: relative;
+      }
+
+      .job-resources li, .student-stories li, .career-events li {
+        padding-left: 20px;
+      }
+
+      .job-resources li::before, .student-stories li::before, .career-events li::before {
+        content: '→';
+        color: var(--primary-orange);
+        position: absolute;
+        left: 0;
+      }
+
+      /* Link styling */
+      a {
         font-weight: bold;
-        color: #f57f17;
+        color: var(--primary-orange);
         text-decoration: none;
-        margin-top: 10px;
+        transition: color 0.3s ease, transform 0.3s ease;
         display: inline-block;
-        transition: color 0.3s ease;
       }
 
-      .resume-tips a:hover {
-        color: #2c3e50;
+      a:hover {
+        color: var(--primary-blue);
+        transform: translateX(3px);
       }
 
-      /* Styling for Job Resources section */
-      .job-resources {
-        margin-bottom: 30px;
+      a[style="display: block"] {
+        margin-bottom: 10px;
       }
 
-      .job-resources > h2 {
-        font-size: 28px;
-        color: #2c3e50;
-        margin-bottom: 15px;
-      }
-
-      .job-resources p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #4a4a4a;
-      }
-
-      .job-resources ul {
-        list-style-type: none;
-        padding-left: 0;
-      }
-
-      .job-resources li {
-        font-size: 18px;
-      }
-
-      .job-resources a {
-        font-weight: bold;
-        color: #f57f17;
-        text-decoration: none;
-      }
-
-      .job-resources a:hover {
-        color: #2c3e50;
-      }
-
-      /* Styling for Interview Prep section */
-      .interview-prep {
-        margin-bottom: 30px;
-      }
-
-      .interview-prep > h2 {
-        font-size: 28px;
-        color: #2c3e50;
-        margin-bottom: 15px;
-      }
-
-      .interview-prep p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #4a4a4a;
-      }
-
-      .interview-prep ul {
-        list-style-type: disc;
-        margin-left: 20px;
-      }
-
-      .interview-prep a {
-        font-size: 18px;
-        font-weight: bold;
-        color: #f57f17;
-        text-decoration: none;
-        margin-top: 10px;
+      /* CTA buttons */
+      .cta-button {
         display: inline-block;
-        transition: color 0.3s ease;
-      }
-
-      .interview-prep a:hover {
-        color: #2c3e50;
-      }
-
-      /* Styling for Student Success Stories section */
-      .student-stories {
-        margin-bottom: 30px;
-      }
-
-      .student-stories > h2 {
-        font-size: 28px;
-        color: #2c3e50;
-        margin-bottom: 15px;
-      }
-
-      .student-stories p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #4a4a4a;
-      }
-
-      .student-stories ul {
-        list-style-type: none;
-        padding-left: 0;
-      }
-
-      .student-stories li {
-        font-size: 18px;
-      }
-
-      .student-stories a {
+        padding: 12px 24px;
+        background-color: var(--primary-orange);
+        color: white;
         font-weight: bold;
-        color: #f57f17;
-        text-decoration: none;
+        border-radius: 6px;
+        margin-top: 15px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
       }
 
-      .student-stories a:hover {
-        color: #2c3e50;
-      }
-
-      /* Styling for Upcoming Career Events section */
-      .career-events {
-        margin-bottom: 30px;
-      }
-
-      .career-events > h2 {
-        font-size: 28px;
-        color: #2c3e50;
-        margin-bottom: 15px;
-      }
-
-      .career-events p {
-        font-size: 18px;
-        line-height: 1.6;
-        color: #4a4a4a;
-      }
-
-      .career-events ul {
-        list-style-type: none;
-        padding-left: 0;
-      }
-
-      .career-events li {
-        font-size: 18px;
-      }
-
-      .career-events a {
-        font-size: 18px;
-        font-weight: bold;
-        color: #f57f17;
-        text-decoration: none;
-      }
-
-      .career-events a:hover {
-        color: #2c3e50;
+      .cta-button:hover {
+        background-color: var(--primary-blue);
+        transform: translateY(-3px);
+        color: white;
       }
 
       /* Footer */
@@ -482,50 +436,92 @@ if ($conn->connect_error) {
         margin-top: 20px;
       }
 
-      /* Mobile-Friendly Styling */
+      /* Responsive styling */
+      @media (max-width: 992px) {
+        .mainbody {
+          grid-template-columns: 1fr;
+        }
+        
+        .hiring, .resume-tips, .interview-prep, .job-resources, .student-stories, .career-events {
+          grid-column: 1;
+        }
+      }
+
       @media (max-width: 768px) {
+        .mainpart {
+          padding: 30px 25px;
+          margin: 20px 15px;
+        }
+        
         .heading-main {
           flex-direction: column;
           text-align: center;
         }
-
+        
         .heading-main > h1 {
-          font-size: 40px;
-        }
-
-        .hiring img {
-          width: 80%;
+          font-size: 36px;
+          margin-left: 0;
           margin-top: 15px;
         }
-
-        .mainpart {
-          margin-left: 20px;
-          margin-right: 20px;
-        }
-
-        .footer-content {
-          padding: 20px;
-        }
-
-        .social-media-icons a {
-          margin: 0 5px;
+        
+        .hiring img {
+          width: 100%;
         }
       }
 
-      @media (max-width: 480px) {
+      @media (max-width: 576px) {
+        .mainpart {
+          padding: 25px 20px;
+          margin: 15px 10px;
+        }
+        
         .heading-main > h1 {
           font-size: 32px;
         }
-
-        .nav-links a {
-          font-size: 14px;
-          padding: 8px 10px;
+        
+        .heading-main > img {
+          height: 60px;
         }
-
-        .footer-note p {
-          font-size: 12px;
+        
+        .hiring > h2, .resume-tips > h2, .job-resources > h2, 
+        .interview-prep > h2, .student-stories > h2, .career-events > h2 {
+          font-size: 22px;
+        }
+        
+        .contact-info p {
+          font-size: 14px;
+        }
+        
+        .social-media-icons a {
+          width: 35px;
+          height: 35px;
         }
       }
+
+      /* Enhancement for featured content */
+      .featured-content {
+        background-color: rgba(245, 127, 23, 0.05);
+        border-left: 4px solid var(--primary-orange);
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 5px 5px 0;
+      }
+
+      /* Animation effects */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .mainbody > div {
+        animation: fadeIn 0.6s ease-out forwards;
+      }
+
+      .mainbody > div:nth-child(2) { animation-delay: 0.1s; }
+      .mainbody > div:nth-child(3) { animation-delay: 0.2s; }
+      .mainbody > div:nth-child(4) { animation-delay: 0.3s; }
+      .mainbody > div:nth-child(5) { animation-delay: 0.4s; }
+      .mainbody > div:nth-child(6) { animation-delay: 0.5s; }
 
     </style>
   </head>
@@ -539,6 +535,7 @@ if ($conn->connect_error) {
           <a href="./resources.php">Resources</a>
           <?php if ($isLoggedIn): ?>
               <?php if ($userType === 'student'): ?>
+                    <a href="scholarships.php">Scholarships</a>
                   <a href="studentdash.php">Student Dashboard</a>
               <?php endif; ?>
               <?php if ($userType === 'employer'): ?>
@@ -571,66 +568,43 @@ if ($conn->connect_error) {
 
     <div class="mainpart">
       <div class="heading-main">
-        <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1_d6gB7lxIuh2R_o_KGMOUNwxyVI7Z9X90A&s"
-        />
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1_d6gB7lxIuh2R_o_KGMOUNwxyVI7Z9X90A&s" alt="West-MEC Logo" />
         <h1>Career Services</h1>
       </div>
 
-      <br />
       <div class="mainbody">
-        <div class="hiring">
+        <div class="hiring section-container">
           <h2>Hiring & Internship Services</h2>
           <p>
-            <span
-              >We understand you are busy and sometimes recruiting skilled
-              candidates takes a back seat. West-MEC’s Career Services
-              Department can help. We offer a search and screening process
-              tailored to your specific hiring needs at no cost to you.</span
-            >
+            We understand you are busy and sometimes recruiting skilled
+            candidates takes a back seat. West-MEC's Career Services
+            Department can help. We offer a search and screening process
+            tailored to your specific hiring needs at no cost to you.
           </p>
+          <div class="featured-content">
+            <p>
+              Make sure that you are on the right path by contacting us today
+              at <strong>623.738.0057</strong>
+            </p>
+          </div>
+          <a href="" class="cta-button">Register as a Community Partner or Employer</a>
+          <a href="" class="cta-button">West-MEC Job Board</a>
           <p>
-            <span
-              >Make sure that you are on the right path by contacting us today
-              at 623.738.0057</span
-            >
-          </p>
-          <a href="" style="display: block"
-            ><span>Register as a Community Partner or Employer</span></a
-          >
-          <a href=""><span>West-MEC Job Board</span></a>
-          <p>
-            <span
-              >To Request an Education Verification, please fax 623.738.0028; be
-              sure to include the student's authorization and year of
-              completion.</span
-            >
+            To Request an Education Verification, please fax 623.738.0028; be
+            sure to include the student's authorization and year of
+            completion.
           </p>
           <img
             src="https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_3/v1703603997/westmecorg/whjkmab4mfnlvoby3nav/ma_halfpagepictall.png"
+            alt="Career Services"
           />
         </div>
 
-        <!-- Additional Section: Resume Building Tips -->
-        <div class="resume-tips">
-          <h2>Resume Building Tips</h2>
-          <p>
-            <span>Building a strong resume is crucial for landing your dream job or internship. Here are some tips to get started:</span>
-          </p>
-          <ul>
-            <li>Keep it concise – ideally 1 page long.</li>
-            <li>Highlight your key skills and accomplishments.</li>
-            <li>Use action verbs like "led," "developed," and "managed."</li>
-            <li>Make sure to proofread for spelling and grammar mistakes.</li>
-          </ul>
-          <a href=""><span>Download Resume Template</span></a>
-        </div>
-
-        <!-- Additional Section: Job Search Resources -->
-        <div class="job-resources">
+        <!-- Job Resources Section -->
+        <div class="job-resources section-container">
           <h2>Job Search Resources</h2>
           <p>
-            <span>Looking for your next opportunity? Here are some websites to help you with your job search:</span>
+            Looking for your next opportunity? Here are some websites to help you with your job search:
           </p>
           <ul>
             <li><a href="https://www.indeed.com">Indeed</a> – Popular job search engine for all industries.</li>
@@ -639,26 +613,26 @@ if ($conn->connect_error) {
           </ul>
         </div>
 
-        <!-- Additional Section: Interview Preparation -->
-        <div class="interview-prep">
-          <h2>Interview Preparation</h2>
+        <!-- Resume Tips Section -->
+        <div class="resume-tips section-container">
+          <h2>Resume Building Tips</h2>
           <p>
-            <span>Preparing for interviews is key to making a great first impression. Here are some tips:</span>
+            Building a strong resume is crucial for landing your dream job or internship. Here are some tips to get started:
           </p>
           <ul>
-            <li>Research the company and position beforehand.</li>
-            <li>Practice answering common interview questions.</li>
-            <li>Dress appropriately and be on time.</li>
-            <li>Ask questions to show your interest in the role and company.</li>
+            <li>Keep it concise – ideally 1 page long.</li>
+            <li>Highlight your key skills and accomplishments.</li>
+            <li>Use action verbs like "led," "developed," and "managed."</li>
+            <li>Make sure to proofread for spelling and grammar mistakes.</li>
           </ul>
-          <a href=""><span>Interview Preparation Resources</span></a>
+          <a href="" class="cta-button">Download Resume Template</a>
         </div>
 
-        <!-- Additional Section: Student Success Stories -->
-        <div class="student-stories">
+        <!-- Student Stories Section -->
+        <div class="student-stories section-container">
           <h2>Student Success Stories</h2>
           <p>
-            <span>Check out some inspiring success stories from students who have landed internships and full-time positions!</span>
+            Check out some inspiring success stories from students who have landed internships and full-time positions!
           </p>
           <ul>
             <li><a href="">John Doe – Software Engineering Internship at XYZ Tech</a></li>
@@ -667,18 +641,33 @@ if ($conn->connect_error) {
           </ul>
         </div>
 
-        <!-- Additional Section: Upcoming Career Events -->
-        <div class="career-events">
+        <!-- Interview Prep Section -->
+        <div class="interview-prep section-container">
+          <h2>Interview Preparation</h2>
+          <p>
+            Preparing for interviews is key to making a great first impression. Here are some tips:
+          </p>
+          <ul>
+            <li>Research the company and position beforehand.</li>
+            <li>Practice answering common interview questions.</li>
+            <li>Dress appropriately and be on time.</li>
+            <li>Ask questions to show your interest in the role and company.</li>
+          </ul>
+          <a href="" class="cta-button">Interview Preparation Resources</a>
+        </div>
+
+        <!-- Career Events Section -->
+        <div class="career-events section-container">
           <h2>Upcoming Career Events</h2>
           <p>
-            <span>Stay updated on upcoming events to network and learn from professionals!</span>
+            Stay updated on upcoming events to network and learn from professionals!
           </p>
           <ul>
             <li><span>Career Fair – February 20, 2025, 10:00 AM – 2:00 PM</span></li>
             <li><span>Resume Workshop – March 5, 2025, 3:00 PM – 5:00 PM</span></li>
             <li><span>Interview Skills Bootcamp – March 15, 2025, 1:00 PM – 4:00 PM</span></li>
           </ul>
-          <a href=""><span>RSVP for Career Events</span></a>
+          <a href="" class="cta-button">RSVP for Career Events</a>
         </div>
 
       </div>
